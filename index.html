@@ -36,67 +36,19 @@
         <div class="input-group">
             <label for="excelUpload">Upload Employee Data (Excel):</label>
             <input type="file" id="excelUpload" accept=".xlsx, .xls">
+            <button onclick="uploadExcelToGitHub()">Upload to GitHub</button>
         </div>
     </div>
 
-    <!-- User Interface -->
-    <div class="input-group">
-        <label for="area">Area:</label>
-        <select id="area" onchange="updateAreaStores()">
-            <option value="">Select Area</option>
-        </select>
-    </div>
-
-    <div class="input-group">
-        <label for="store">Store Name:</label>
-        <select id="store" onchange="updateStoreEmployees()" disabled>
-            <option value="">Select Store</option>
-        </select>
-    </div>
-
-    <div class="input-group">
-        <label for="employee">Employee (HRMS ID):</label>
-        <select id="employee" onchange="updateEmployeeData()" disabled>
-            <option value="">Select Employee</option>
-        </select>
-    </div>
-
-    <div class="input-group">
-        <label for="employeeName">Employee Name:</label>
-        <input type="text" id="employeeName" readonly>
-    </div>
-
-    <div class="input-group">
-        <label for="individualSales">Individual Sales (AED):</label>
-        <input type="number" id="individualSales" readonly>
-    </div>
-
-    <div class="input-group">
-        <label for="storeTarget">Store Target (AED):</label>
-        <input type="number" id="storeTarget" readonly>
-    </div>
-
-    <div class="input-group">
-        <label for="budgetAchievement">Budget Achievement (AED):</label>
-        <input type="number" id="budgetAchievement" readonly>
-    </div>
-
-    <button onclick="calculateIncentive()">Calculate Incentive</button>
-    <div class="result" id="result"></div>
-
     <script>
-        // Admin Configuration
-        const ADMIN_PASSWORD = "admin123";
-        let employeeDataMap = new Map();
-        let areaStoreMap = {};
+        const ADMIN_PASSWORD = "admin123"; // Change if needed
 
-        // Admin Functions
         function toggleAdminLogin() {
             document.getElementById('adminLogin').style.display = 'block';
         }
 
         function verifyAdmin() {
-            if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+            if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
                 document.getElementById('adminSection').style.display = 'block';
                 alert("Admin access granted!");
             } else {
@@ -104,164 +56,43 @@
             }
         }
 
-        // Excel Handling
-        document.getElementById('excelUpload').addEventListener('change', function(e) {
-            const file = e.target.files[0];
+        async function uploadExcelToGitHub() {
+            const fileInput = document.getElementById('excelUpload');
+            if (fileInput.files.length === 0) {
+                alert("Please select a file.");
+                return;
+            }
+
+            const file = fileInput.files[0];
             const reader = new FileReader();
-            
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
-                areaStoreMap = {};
-                employeeDataMap.clear();
+            reader.onload = async function (event) {
+                const fileData = event.target.result;
+                const base64Data = btoa(fileData); // Convert to Base64
 
-                jsonData.forEach(row => {
-                    const area = row['Area'];
-                    const store = row['Store Location'];
-                    const employee = {
-                        id: row['HRMS ID'].toString(),
-                        name: row['Employee Name'],
-                        individualSales: row['Individual Sales'],
-                        storeTarget: row['Store Target'],
-                        budgetAchievement: row['Budget Achievement']
-                    };
+                const githubApiUrl = "https://api.github.com/repos/**your-username/your-repository**/contents/**your-file.xlsx**"; // Change Here
+                const token = "*your-personal-access-token*"; // Change Here
 
-                    if (!areaStoreMap[area]) areaStoreMap[area] = {};
-                    if (!areaStoreMap[area][store]) areaStoreMap[area][store] = [];
-                    areaStoreMap[area][store].push({id: employee.id, name: employee.name});
-
-                    employeeDataMap.set(employee.id, {
-                        individualSales: employee.individualSales,
-                        storeTarget: employee.storeTarget,
-                        budgetAchievement: employee.budgetAchievement
-                    });
+                const response = await fetch(githubApiUrl, {
+                    method: "PUT",
+                    headers: {
+                        "Authorization": token ${token},
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        message: "Upload Excel file",
+                        content: base64Data
+                    })
                 });
 
-                initializeAreas();
-                alert('Employee data updated successfully!');
+                if (response.ok) {
+                    alert("File uploaded successfully!");
+                } else {
+                    alert("Error uploading file!");
+                }
             };
-            reader.readAsArrayBuffer(file);
-        });
 
-        // Area and Store Management
-        function initializeAreas() {
-            const areaSelect = document.getElementById('area');
-            areaSelect.innerHTML = '<option value="">Select Area</option>';
-            Object.keys(areaStoreMap).forEach(area => {
-                const option = document.createElement('option');
-                option.value = area;
-                option.textContent = area;
-                areaSelect.appendChild(option);
-            });
-        }
-
-        function updateAreaStores() {
-            const area = document.getElementById('area').value;
-            const storeSelect = document.getElementById('store');
-            storeSelect.innerHTML = '<option value="">Select Store</option>';
-            
-            if (area) {
-                storeSelect.disabled = false;
-                Object.keys(areaStoreMap[area] || {}).forEach(store => {
-                    const option = document.createElement('option');
-                    option.value = store;
-                    option.textContent = store;
-                    storeSelect.appendChild(option);
-                });
-            } else {
-                storeSelect.disabled = true;
-            }
-            document.getElementById('employee').innerHTML = '<option value="">Select Employee</option>';
-            document.getElementById('employee').disabled = true;
-            clearEmployeeFields();
-        }
-
-        function updateStoreEmployees() {
-            const area = document.getElementById('area').value;
-            const store = document.getElementById('store').value;
-            const employeeSelect = document.getElementById('employee');
-            employeeSelect.innerHTML = '<option value="">Select Employee</option>';
-
-            if (area && store) {
-                employeeSelect.disabled = false;
-                areaStoreMap[area][store].forEach(emp => {
-                    const option = document.createElement('option');
-                    option.value = `${emp.id}_${emp.name}`;
-                    option.textContent = emp.id;
-                    employeeSelect.appendChild(option);
-                });
-            } else {
-                employeeSelect.disabled = true;
-            }
-            clearEmployeeFields();
-        }
-
-        function clearEmployeeFields() {
-            document.getElementById('employeeName').value = '';
-            document.getElementById('individualSales').value = '';
-            document.getElementById('storeTarget').value = '';
-            document.getElementById('budgetAchievement').value = '';
-        }
-
-        function updateEmployeeData() {
-            const employee = document.getElementById('employee').value.split('_');
-            const empId = employee[0];
-            document.getElementById('employeeName').value = employee[1] || '';
-            
-            const data = employeeDataMap.get(empId);
-            if(data) {
-                document.getElementById('individualSales').value = data.individualSales;
-                document.getElementById('storeTarget').value = data.storeTarget;
-                document.getElementById('budgetAchievement').value = data.budgetAchievement;
-            }
-        }
-
-        // Calculation Logic
-        function calculateIncentive() {
-            const employee = document.getElementById('employee').value.split('_');
-            const empId = employee[0];
-            const individualSales = parseFloat(document.getElementById('individualSales').value);
-            const storeTarget = parseFloat(document.getElementById('storeTarget').value);
-            const budgetAchievement = parseFloat(document.getElementById('budgetAchievement').value);
-
-            if (!empId || !individualSales || !storeTarget || !budgetAchievement) {
-                alert('Please fill all fields');
-                return;
-            }
-
-            if ([individualSales, storeTarget, budgetAchievement].some(v => v < 0)) {
-                alert('Negative values not allowed');
-                return;
-            }
-
-            const budgetPercentage = (budgetAchievement / storeTarget) * 100;
-            let commissionRate = 0.01;
-            if (budgetPercentage >= 110) commissionRate = 0.02;
-            else if (budgetPercentage >= 105) commissionRate = 0.015;
-
-            const incentive = individualSales * commissionRate;
-
-            let message;
-            if (commissionRate === 0.02) {
-                message = `Exceptional performance, ${employee[1]}! 🏆 Achieved ${budgetPercentage.toFixed(2)}% of target!`;
-            } else if (commissionRate === 0.015) {
-                message = `Outstanding work, ${employee[1]}! 🎉 Reached ${budgetPercentage.toFixed(2)}% of target!`;
-            } else {
-                message = `Great effort, ${employee[1]}! 💼 Current achievement: ${budgetPercentage.toFixed(2)}%`;
-            }
-
-            document.getElementById('result').innerHTML = `
-                <h3>Results</h3>
-                <p>Budget Achievement: AED ${budgetAchievement.toLocaleString()}</p>
-                <p>Achievement Percentage: ${budgetPercentage.toFixed(2)}%</p>
-                <p>Commission Rate: ${(commissionRate * 100).toFixed(1)}%</p>
-                <p>Individual Sales: AED ${individualSales.toLocaleString()}</p>
-                <h4>Total Incentive: AED ${incentive.toLocaleString()}</h4>
-                <p style="color: #27ae60; font-weight: bold; margin-top: 15px;">${message}</p>
-            `;
+            reader.readAsBinaryString(file);
         }
     </script>
 </body>
