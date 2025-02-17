@@ -171,7 +171,7 @@
                     let sha = null;
                     try {
                         const response = await fetch(url, {
-                            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                            headers: { 'Authorization': `token ${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}` }
                         });
                         const data = await response.json();
                         sha = data.sha;
@@ -189,7 +189,7 @@
                         await fetch(url, {
                             method: 'PUT',
                             headers: {
-                                'Authorization': `token ${GITHUB_TOKEN}`,
+                                'Authorization': `token ${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}`,
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify(body)
@@ -249,11 +249,11 @@
 
         // Data Loading
         async function loadDataFromGitHub() {
-            const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+            const url = `https://api.github.com/repos/${}https://github.com/neupane1989/${}/https://github.com/neupane1989/HTML-Project/blob/main/index.htmlcontents/${https://github.com/neupane1989/HTML-Project/blob/main/Data.xlsx}`;
             
             try {
                 const response = await fetch(url, {
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                    headers: { 'Authorization': `token ${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}` }
                 });
                 const data = await response.json();
                 const content = atob(data.content);
