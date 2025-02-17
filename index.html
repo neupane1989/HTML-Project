@@ -124,7 +124,7 @@
         const GITHUB_OWNER = "neupane1989";
         const GITHUB_REPO = "HTML-Project";
         const FILE_PATH = "data/employee_data.xlsx";
-        const GITHUB_TOKEN = "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"; // 🔒 Keep this secret!
+        const GITHUB_TOKEN = "your_personal_access_token_here"; // 🔒 Keep this secret!
         
         let employeeDataMap = new Map();
         let areaStoreMap = {};
@@ -165,13 +165,13 @@
             return new Promise((resolve) => {
                 reader.onload = async () => {
                     const content = reader.result.split(',')[1];
-                    const url = `https://api.github.com/repos/${https://github.com/neupane1989}/${https://github.com/neupane1989/HTML-Project/contents/${https://github.com/neupane1989/HTML-Project/blob/main/Data.xlsx}`;
+                    const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
                     
                     // Get existing file SHA
                     let sha = null;
                     try {
                         const response = await fetch(url, {
-                            headers: { 'Authorization': `token ${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}` }
+                            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
                         });
                         const data = await response.json();
                         sha = data.sha;
@@ -189,7 +189,7 @@
                         await fetch(url, {
                             method: 'PUT',
                             headers: {
-                                'Authorization': `token ${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}`,
+                                'Authorization': `token ${GITHUB_TOKEN}`,
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify(body)
@@ -249,11 +249,11 @@
 
         // Data Loading
         async function loadDataFromGitHub() {
-            const url = `https://api.github.com/repos/${}https://github.com/neupane1989/${}/https://github.com/neupane1989/HTML-Project/blob/main/index.htmlcontents/${https://github.com/neupane1989/HTML-Project/blob/main/Data.xlsx}`;
+            const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
             
             try {
                 const response = await fetch(url, {
-                    headers: { 'Authorization': `token ${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}` }
+                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
                 });
                 const data = await response.json();
                 const content = atob(data.content);
