@@ -124,7 +124,7 @@
         const GITHUB_OWNER = "neupane1989";
         const GITHUB_REPO = "HTML-Project";
         const FILE_PATH = "https://github.com/neupane1989/HTML-Project/blob/main/Employee%20Data.xlsx";
-        const GITHUB_TOKEN = "your_personal_access_token_here"; // 🔒 Keep this secret!
+        const GITHUB_TOKEN = "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"; // 🔒 Keep this secret!
         
         let employeeDataMap = new Map();
         let areaStoreMap = {};
@@ -171,7 +171,7 @@
                     let sha = null;
                     try {
                         const response = await fetch(url, {
-                            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                            headers: { 'Authorization': `token ${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}` }
                         });
                         const data = await response.json();
                         sha = data.sha;
@@ -189,7 +189,7 @@
                         await fetch(url, {
                             method: 'PUT',
                             headers: {
-                                'Authorization': `token ${GITHUB_TOKEN}`,
+                                'Authorization': `token ${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}`,
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify(body)
@@ -253,7 +253,7 @@
             
             try {
                 const response = await fetch(url, {
-                    headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+                    headers: { 'Authorization': `token ${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}` }
                 });
                 const data = await response.json();
                 const content = atob(data.content);
