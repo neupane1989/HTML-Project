@@ -123,9 +123,9 @@
         const ADMIN_PASSWORD = "admin123";
         const GITHUB_OWNER = "neupane1989";
         const GITHUB_REPO = "HTML-Project";
-        const FILE_PATH = "Employee Data.xlsx";
-        const GITHUB_TOKEN = "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"; // 🔒 Keep this secret!
-        
+        const FILE_PATH = "data/employee_data.xlsx";
+        const GITHUB_TOKEN = "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";
+
         let employeeDataMap = new Map();
         let areaStoreMap = {};
 
@@ -152,6 +152,7 @@
                 alert("User login successful!");
                 document.getElementById('area').disabled = false;
                 document.getElementById('store').disabled = false;
+                loadDataFromGitHub(); // Load data after successful login
             } else {
                 alert("Invalid HRMS ID or password!");
             }
@@ -165,13 +166,13 @@
             return new Promise((resolve) => {
                 reader.onload = async () => {
                     const content = reader.result.split(',')[1];
-                    const url = `https://api.github.com/repos/${neupane1989}/${html-project}/contents/${employeedata.xlsx}`;
+                    const url = `https://api.github.com/repos/${neupane1989}/${HTML_Project}/contents/${data/employee_data.xlsx}`;
                     
                     // Get existing file SHA
                     let sha = null;
                     try {
                         const response = await fetch(url, {
-                            headers: { 'Authorization': `token ${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}` }
+                            headers: { 'Authorization': `token ${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}` }
                         });
                         const data = await response.json();
                         sha = data.sha;
@@ -186,18 +187,19 @@
                     };
 
                     try {
-                        await fetch(url, {
+                        const uploadResponse = await fetch(url, {
                             method: 'PUT',
                             headers: {
-                                'Authorization': `token ${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}`,
+                                'Authorization': `token ${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}`,
                                 'Content-Type': 'application/json'
                             },
                             body: JSON.stringify(body)
                         });
+                        if (!uploadResponse.ok) throw new Error('Upload failed');
                         alert('File saved to GitHub!');
                         resolve(true);
                     } catch (error) {
-                        alert('GitHub upload failed');
+                        alert('GitHub upload failed: ' + error.message);
                         resolve(false);
                     }
                 };
@@ -244,27 +246,29 @@
                 employeeDataMap.set(employee.id, employee);
             });
 
-            initializeAreas(); 
+            initializeAreas();
         }
 
         // Data Loading
         async function loadDataFromGitHub() {
-            const url = `https://github.com/neupane1989/HTML-Project
+            const url = `https://api.github.com/repos/${neupane1989}/${HTML-Project}/data/employee_data.xlsx}`;
             
             try {
                 const response = await fetch(url, {
-                    headers: { 'Authorization': `token ${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}` }
+                    headers: { 'Authorization': `token ${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}` }
                 });
+                if (!response.ok) throw new Error('Failed to fetch');
                 const data = await response.json();
-                const content = atob(data.content);
+                const base64Content = data.content.replace(/\n/g, '');
+                const content = atob(base64Content);
                 const arrayBuffer = new Uint8Array(content.length);
                 for (let i = 0; i < content.length; i++) {
                     arrayBuffer[i] = content.charCodeAt(i);
                 }
                 processExcelData(arrayBuffer);
-                alert('Data loaded from GitHub!');
             } catch (error) {
-                console.log('Initial load failed - upload data first');
+                console.error('Initial load failed:', error);
+                alert('Error loading data. Upload Excel file first.');
             }
         }
 
@@ -342,7 +346,6 @@
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', () => {
-            loadDataFromGitHub();
             document.getElementById('adminSection').style.display = 'none';
             document.getElementById('area').disabled = true;
             document.getElementById('store').disabled = true;
