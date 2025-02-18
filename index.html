@@ -15,7 +15,7 @@
             background-size: cover;
             background-position: center;
         }
-
+        
         body::before {
             content: "";
             background-image: url('image.png.jpeg');
@@ -32,14 +32,12 @@
         select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
         button { padding: 12px 25px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
         .admin-section { display: none; border: 2px solid #4CAF50; padding: 20px; margin-bottom: 20px; background-color: rgba(255,255,255,0.9); }
-        
         #employeeTable { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: rgba(255,255,255,0.9); }
         #employeeTable th, #employeeTable td { padding: 12px; border: 1px solid #ddd; text-align: left; }
         #employeeTable th { background-color: #4CAF50; color: white; }
         #employeeTable tr:nth-child(even) { background-color: #f2f2f2; }
         .store-summary { background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
         .store-summary p { margin: 5px 0; font-weight: bold; }
-
         .user-login { margin-bottom: 20px; }
         .admin-login { position: absolute; top: 20px; right: 20px; }
     </style>
@@ -103,7 +101,7 @@
             <p>Achievement Percentage: <span id="storePercentageSummary">0</span>%</p>
             <p>Commission Rate: <span id="storeCommissionRate">0</span>%</p>
         </div>
-
+        
         <table id="employeeTable">
             <thead>
                 <tr>
@@ -119,11 +117,10 @@
     </div>
 
     <script>
-        // Configuration (Replace with your details)
         const ADMIN_PASSWORD = "admin123";
         const GITHUB_OWNER = "neupane1989";
         const GITHUB_REPO = "HTML-Project";
-        const FILE_PATH = "data/employee_data.xlsx";
+        const FILE_PATH = "data/employee_data.xlsx";  // Same path as in your GitHub repo
         const GITHUB_TOKEN = "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";
 
         let employeeDataMap = new Map();
@@ -159,67 +156,22 @@
         }
 
         // GitHub Integration
-        async function uploadToGitHub(file) {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
+        async function loadDataFromGitHub() {
+            const url = `https://raw.githubusercontent.com/neupane1989/HTML-Project/main/Employee%20Data.xlsx`;
             
-            return new Promise((resolve) => {
-                reader.onload = async () => {
-                    const content = reader.result.split(',')[1];
-                    const url = `https://api.github.com/repos/${neupane1989}/${HTML_Project}/contents/${data/employee_data.xlsx}`;
-                    
-                    // Get existing file SHA
-                    let sha = null;
-                    try {
-                        const response = await fetch(url, {
-                            headers: { 'Authorization': `token ${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}` }
-                        });
-                        const data = await response.json();
-                        sha = data.sha;
-                    } catch (error) { /* New file */ }
-
-                    // Prepare upload
-                    const body = {
-                        message: "Update employee data via Admin Panel",
-                        content: content,
-                        sha: sha,
-                        branch: "main"
-                    };
-
-                    try {
-                        const uploadResponse = await fetch(url, {
-                            method: 'PUT',
-                            headers: {
-                                'Authorization': `token ${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}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(body)
-                        });
-                        if (!uploadResponse.ok) throw new Error('Upload failed');
-                        alert('File saved to GitHub!');
-                        resolve(true);
-                    } catch (error) {
-                        alert('GitHub upload failed: ' + error.message);
-                        resolve(false);
-                    }
-                };
-            });
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch');
+                
+                const arrayBuffer = await response.arrayBuffer();
+                processExcelData(new Uint8Array(arrayBuffer));
+            } catch (error) {
+                console.error('Error loading data:', error);
+                alert('Error loading data. Please check if the file exists in the repository.');
+            }
         }
 
         // Excel Handling
-        document.getElementById('excelUpload').addEventListener('change', async function(e) {
-            const file = e.target.files[0];
-            const success = await uploadToGitHub(file);
-            if (!success) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                processExcelData(new Uint8Array(e.target.result));
-                alert('Data loaded successfully!');
-            };
-            reader.readAsArrayBuffer(file);
-        });
-
         function processExcelData(data) {
             const workbook = XLSX.read(data, {type: 'array'});
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
@@ -250,29 +202,6 @@
         }
 
         // Data Loading
-        async function loadDataFromGitHub() {
-            const url = `https://api.github.com/repos/${neupane1989}/${HTML-Project}/data/employee_data.xlsx}`;
-            
-            try {
-                const response = await fetch(url, {
-                    headers: { 'Authorization': `token ${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}` }
-                });
-                if (!response.ok) throw new Error('Failed to fetch');
-                const data = await response.json();
-                const base64Content = data.content.replace(/\n/g, '');
-                const content = atob(base64Content);
-                const arrayBuffer = new Uint8Array(content.length);
-                for (let i = 0; i < content.length; i++) {
-                    arrayBuffer[i] = content.charCodeAt(i);
-                }
-                processExcelData(arrayBuffer);
-            } catch (error) {
-                console.error('Initial load failed:', error);
-                alert('Error loading data. Upload Excel file first.');
-            }
-        }
-
-        // UI Management
         function initializeAreas() {
             const areaSelect = document.getElementById('area');
             areaSelect.innerHTML = '<option value="">Select Area</option>';
@@ -281,75 +210,5 @@
             });
         }
 
-        function updateAreaStores() {
-            const area = document.getElementById('area').value;
-            const storeSelect = document.getElementById('store');
-            storeSelect.innerHTML = '<option value="">Select Store</option>';
-            
-            if (area) {
-                storeSelect.disabled = false;
-                Object.keys(areaStoreMap[area] || {}).forEach(store => {
-                    storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
-                });
-            } else {
-                storeSelect.disabled = true;
-            }
-            document.getElementById('employeeTableSection').style.display = 'none';
-        }
+        function updateAreaStores
 
-        function updateStoreEmployees() {
-            const area = document.getElementById('area').value;
-            const store = document.getElementById('store').value;
-            const section = document.getElementById('employeeTableSection');
-            const tbody = document.querySelector('#employeeTable tbody');
-
-            tbody.innerHTML = '';
-            section.style.display = 'none';
-
-            if (area && store) {
-                section.style.display = 'block';
-                let totalBudget = 0;
-                let totalAchievement = 0;
-                
-                areaStoreMap[area][store].forEach(emp => {
-                    const data = employeeDataMap.get(emp.id);
-                    totalBudget += data.storeTarget;
-                    totalAchievement += data.budgetAchievement;
-                });
-
-                const storePercentage = (totalAchievement / totalBudget) * 100;
-                let commissionRate = 0.01;
-                if (storePercentage >= 110) commissionRate = 0.02;
-                else if (storePercentage >= 105) commissionRate = 0.015;
-
-                document.getElementById('storeBudgetSummary').textContent = totalBudget.toLocaleString();
-                document.getElementById('storeAchievementSummary').textContent = totalAchievement.toLocaleString();
-                document.getElementById('storePercentageSummary').textContent = storePercentage.toFixed(2);
-                document.getElementById('storeCommissionRate').textContent = (commissionRate * 100).toFixed(1);
-
-                areaStoreMap[area][store].forEach(emp => {
-                    const data = employeeDataMap.get(emp.id);
-                    const commission = data.individualSales * commissionRate;
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>${emp.id}</td>
-                            <td>${emp.name}</td>
-                            <td>${data.individualSales.toLocaleString()}</td>
-                            <td>${(commissionRate * 100).toFixed(1)}%</td>
-                            <td>${commission.toLocaleString()}</td>
-                        </tr>
-                    `;
-                });
-            }
-        }
-
-        // Initialize Application
-        document.addEventListener('DOMContentLoaded', () => {
-            document.getElementById('adminSection').style.display = 'none';
-            document.getElementById('area').disabled = true;
-            document.getElementById('store').disabled = true;
-        });
-    </script>
-</body>
-</html>
