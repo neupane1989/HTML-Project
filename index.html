@@ -244,12 +244,12 @@
                 employeeDataMap.set(employee.id, employee);
             });
 
-            initializeAreas();
+            initializeAreas(); 
         }
 
         // Data Loading
         async function loadDataFromGitHub() {
-            const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${FILE_PATH}`;
+            const url = `https://github.com/neupane1989/HTML-Project
             
             try {
                 const response = await fetch(url, {
