@@ -351,5 +351,35 @@
             document.getElementById('store').disabled = true;
         });
     </script>
+// Configuration (Replace with your details)
+const ADMIN_PASSWORD = "admin123";
+const GITHUB_RAW_URL = "https://raw.githubusercontent.com/neupane1989/HTML-Project/main/excel_files/README.md"; 
+
+let employeeDataMap = new Map();
+let areaStoreMap = {};
+
+// Updated load function
+async function loadDataFromGitHub() {
+    try {
+        const response = await fetch(GITHUB_RAW_URL);
+        if (!response.ok) throw new Error('Failed to fetch');
+        const arrayBuffer = await response.arrayBuffer();
+        processExcelData(new Uint8Array(arrayBuffer));
+    } catch (error) {
+        console.error('Initial load failed:', error);
+        alert('Error loading data. Ensure Excel file exists in GitHub repo.');
+    }
+}
+
+// Remove the entire uploadToGitHub function and replace the excelUpload event listener with:
+document.getElementById('excelUpload').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        processExcelData(new Uint8Array(e.target.result));
+        alert('Data loaded successfully!');
+    };
+    reader.readAsArrayBuffer(file);
+});
 </body>
 </html>
