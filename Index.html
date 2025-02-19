@@ -1,6 +1,63 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Keep the same head section with styles -->
+</head>
+<body>
+    <!-- Keep the same HTML structure until the Admin Panel section -->
+
+    <!-- Modified Admin Panel (Upload removed) -->
+    <div class="admin-section" id="adminSection">
+        <h3>Admin Panel</h3>
+        <p>Upload data manually to GitHub repo and reload page.</p>
+    </div>
+
+    <!-- Rest of the HTML remains the same -->
+
+    <script>
+        // Replace Cloudflare config with GitHub raw URL
+        const ADMIN_PASSWORD = "admin123";
+        const GITHUB_RAW_URL = "https://raw.githubusercontent.com/[your-username]/[repo-name]/[branch]/data.xlsx";
+
+        let employeeDataMap = new Map();
+        let areaStoreMap = {};
+
+        // Modified verifyUser function
+        function verifyUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (password === `Ramadan_${username}`) {
+                alert("User login successful!");
+                document.getElementById('area').disabled = false;
+                document.getElementById('store').disabled = false;
+                loadDataFromGitHub();
+            } else {
+                alert("Invalid HRMS ID or password!");
+            }
+        }
+
+        // Modified data loading
+        async function loadDataFromGitHub() {
+            try {
+                const response = await fetch(GITHUB_RAW_URL);
+                if (!response.ok) throw new Error('Failed to fetch');
+                
+                const arrayBuffer = await response.arrayBuffer();
+                processExcelData(new Uint8Array(arrayBuffer));
+            } catch (error) {
+                console.error('Data load failed:', error);
+                alert('Error loading data. Ensure data.xlsx exists in repo.');
+            }
+        }
+
+        // Remove all Cloudflare upload-related code and file input handlers
+
+        // Keep the rest of the JavaScript code the same
+    </script>
+</body>
+</html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RAMADAN INCENTIVE CALCULATOR</title>
