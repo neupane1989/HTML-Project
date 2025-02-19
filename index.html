@@ -6,6 +6,7 @@
     <title>RAMADAN INCENTIVE CALCULATOR</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        /* Keep all your existing styles */
         body {
             font-family: Arial, sans-serif;
             max-width: 1000px;
@@ -124,11 +125,13 @@
 
         // Admin Functions
         function toggleAdminLogin() {
-            document.getElementById('adminLogin').style.display = 'block';
+            const adminLoginDiv = document.getElementById('adminLogin');
+            adminLoginDiv.style.display = adminLoginDiv.style.display === 'none' ? 'block' : 'none';
         }
 
         function verifyAdmin() {
-            if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+            const adminPassword = document.getElementById('adminPassword').value;
+            if (adminPassword === ADMIN_PASSWORD) {
                 document.getElementById('adminSection').style.display = 'block';
                 alert("Admin access granted!");
             } else {
@@ -154,14 +157,14 @@
         // Google Sheets Data Loader
         async function loadDataFromGoogleSheets() {
             try {
-                const response = await fetchhttps://docs.google.com/spreadsheets/d/e/2PACX-1vTGWVsUVJn5zpUeu5nXAvP1gj3sdnf0EgPO653Y3mtYMtFKk9wyaFemjuog2kt6GAhfERqbJ9nW1L78/pubhtml?gid=904567657&single=true;
+                const response = await fetch(GOOGLE_SHEETS_URL);
                 if (!response.ok) throw new Error('Failed to fetch');
                 
                 const csvData = await response.text();
                 processSheetData(csvData);
             } catch (error) {
                 console.error('Data load failed:', error);
-                alert('Error loading data. Check Sheet URL and sharing settings.');
+                alert('Error loading data. Ensure: \n1. Sheet is published to web \n2. URL is correct \n3. Sharing is set to "Anyone with the link"');
             }
         }
 
