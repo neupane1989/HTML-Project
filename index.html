@@ -117,7 +117,7 @@
 
     <script>
         const ADMIN_PASSWORD = "admin123";
-        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/[1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE]/export?format=csv";
+        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
 
         let employeeDataMap = new Map();
         let areaStoreMap = {};
@@ -154,7 +154,7 @@
         // Google Sheets Data Loader
         async function loadDataFromGoogleSheets() {
             try {
-                const response = await fetch(GOOGLE_SHEETS_URL);
+                const response = await fetchhttps://docs.google.com/spreadsheets/d/e/2PACX-1vTGWVsUVJn5zpUeu5nXAvP1gj3sdnf0EgPO653Y3mtYMtFKk9wyaFemjuog2kt6GAhfERqbJ9nW1L78/pubhtml?gid=904567657&single=true;
                 if (!response.ok) throw new Error('Failed to fetch');
                 
                 const csvData = await response.text();
