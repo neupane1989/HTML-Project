@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Keep the same head section with styles -->
+</head>
+<body>
+    <!-- Keep the same HTML structure until the Admin Panel section -->
+
+    <!-- Modified Admin Panel (Upload removed) -->
+    <div class="admin-section" id="adminSection">
+        <h3>Admin Panel</h3>
+        <p>Upload data manually to GitHub repo and reload page.</p>
+    </div>
+
+    <!-- Rest of the HTML remains the same -->
+
+    <script>
+        // Replace Cloudflare config with GitHub raw URL
+        const ADMIN_PASSWORD = "admin123";
+        const GITHUB_RAW_URL = "https://raw.githubusercontent.com/[your-username]/[repo-name]/[branch]/data.xlsx";
+
+        let employeeDataMap = new Map();
+        let areaStoreMap = {};
+
+        // Modified verifyUser function
+        function verifyUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (password === `Ramadan_${username}`) {
+                alert("User login successful!");
+                document.getElementById('area').disabled = false;
+                document.getElementById('store').disabled = false;
+                loadDataFromGitHub();
+            } else {
+                alert("Invalid HRMS ID or password!");
+            }
+        }
+
+        // Modified data loading
+        async function loadDataFromGitHub() {
+            try {
+                const response = await fetch(GITHUB_RAW_URL);
+                if (!response.ok) throw new Error('Failed to fetch');
+                
+                const arrayBuffer = await response.arrayBuffer();
+                processExcelData(new Uint8Array(arrayBuffer));
+            } catch (error) {
+                console.error('Data load failed:', error);
+                alert('Error loading data. Ensure data.xlsx exists in repo.');
+            }
+        }
+
+        // Remove all Cloudflare upload-related code and file input handlers
+
+        // Keep the rest of the JavaScript code the same
+    </script>
+</body>
+</html>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAMADAN INCENTIVE CALCULATOR</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+
+        body::before {
+            content: "";
+            background-image: url('image.png.jpeg');
+            opacity: 0.4;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .input-group { margin-bottom: 15px; }
+        select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 12px 25px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        .admin-section { display: none; border: 2px solid #4CAF50; padding: 20px; margin-bottom: 20px; background-color: rgba(255,255,255,0.9); }
+        
+        #employeeTable { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: rgba(255,255,255,0.9); }
+        #employeeTable th, #employeeTable td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        #employeeTable th { background-color: #4CAF50; color: white; }
+        #employeeTable tr:nth-child(even) { background-color: #f2f2f2; }
+        .store-summary { background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
+        .store-summary p { margin: 5px 0; font-weight: bold; }
+
+        .user-login { margin-bottom: 20px; }
+        .admin-login { position: absolute; top: 20px; right: 20px; }
+    </style>
+</head>
+<body>
+    <h2 style="color: #2c3e50; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
+        RAMADAN INCENTIVE CALCULATOR
+    </h2>
+
+    <!-- Admin Login -->
+    <div class="admin-login">
+        <button onclick="toggleAdminLogin()">Admin Login</button>
+        <div id="adminLogin" style="display:none; margin-top:10px;">
+            <input type="password" id="adminPassword" placeholder="Enter Admin Password">
+            <button onclick="verifyAdmin()">Authenticate</button>
+        </div>
+    </div>
+
+    <!-- User Login -->
+    <div class="user-login">
+        <div class="input-group">
+            <label for="username">HRMS ID:</label>
+            <input type="text" id="username" placeholder="Enter HRMS ID">
+        </div>
+        <div class="input-group">
+            <label for="password">Password:</label>
+            <input type="password" id="password" placeholder="Enter Password">
+        </div>
+        <button onclick="verifyUser()">Login</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div class="admin-section" id="adminSection">
+        <h3>Admin Panel</h3>
+        <div class="input-group">
+            <label for="excelUpload">Upload Employee Data (Excel):</label>
+            <input type="file" id="excelUpload" accept=".xlsx, .xls">
+        </div>
+    </div>
+
+    <!-- User Interface -->
+    <div class="input-group">
+        <label for="area">Area:</label>
+        <select id="area" onchange="updateAreaStores()">
+            <option value="">Select Area</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label for="store">Store Name:</label>
+        <select id="store" onchange="updateStoreEmployees()" disabled>
+            <option value="">Select Store</option>
+        </select>
+    </div>
+
+    <!-- Employee Table -->
+    <div class="input-group" id="employeeTableSection" style="display: none;">
+        <div class="store-summary">
+            <p>Store Target: AED <span id="storeBudgetSummary">0</span></p>
+            <p>Budget Achievement: AED <span id="storeAchievementSummary">0</span></p>
+            <p>Achievement Percentage: <span id="storePercentageSummary">0</span>%</p>
+            <p>Commission Rate: <span id="storeCommissionRate">0</span>%</p>
+        </div>
+
+        <table id="employeeTable">
+            <thead>
+                <tr>
+                    <th>HRMS ID</th>
+                    <th>Employee Name</th>
+                    <th>Individual Sales</th>
+                    <th>Commission %</th>
+                    <th>Commission</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </div>
+
+    <script>
+        // Cloudflare Configuration (Replace these with your actual endpoints)
+        const ADMIN_PASSWORD = "admin123";
+        const CLOUDFLARE_UPLOAD_URL = "https://your-domain.online/upload";
+        const CLOUDFLARE_DOWNLOAD_URL = "https://your-domain.online/download";
+
+        let employeeDataMap = new Map();
+        let areaStoreMap = {};
+
+        // Admin Functions
+        function toggleAdminLogin() {
+            document.getElementById('adminLogin').style.display = 'block';
+        }
+
+        function verifyAdmin() {
+            if(document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+                document.getElementById('adminSection').style.display = 'block';
+                alert("Admin access granted!");
+            } else {
+                alert("Invalid password!");
+            }
+        }
+
+        // User Login Function
+        function verifyUser() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (password === `Ramadan_${username}`) {
+                alert("User login successful!");
+                document.getElementById('area').disabled = false;
+                document.getElementById('store').disabled = false;
+                loadDataFromCloudflare();
+            } else {
+                alert("Invalid HRMS ID or password!");
+            }
+        }
+
+        // Cloudflare File Handling
+        async function uploadToCloudflare(file) {
+            const formData = new FormData();
+            formData.append('excel', file);
+
+            try {
+                const response = await fetch(CLOUDFLARE_UPLOAD_URL, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (!response.ok) throw new Error('Upload failed');
+                alert('File saved to Cloudflare!');
+                return true;
+            } catch (error) {
+                alert('Cloudflare upload failed: ' + error.message);
+                return false;
+            }
+        }
+
+        // Excel Handling
+        document.getElementById('excelUpload').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            const success = await uploadToCloudflare(file);
+            if (!success) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                processExcelData(new Uint8Array(e.target.result));
+                alert('Data loaded successfully!');
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function processExcelData(data) {
+            const workbook = XLSX.read(data, {type: 'array'});
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+
+            areaStoreMap = {};
+            employeeDataMap.clear();
+
+            jsonData.forEach(row => {
+                const area = row['Area'];
+                const store = row['Store Location'];
+                const employee = {
+                    id: row['HRMS ID'].toString(),
+                    name: row['Employee Name'],
+                    individualSales: row['Individual Sales'],
+                    storeTarget: row['Store Target'],
+                    budgetAchievement: row['Budget Achievement']
+                };
+
+                if (!areaStoreMap[area]) areaStoreMap[area] = {};
+                if (!areaStoreMap[area][store]) areaStoreMap[area][store] = [];
+                areaStoreMap[area][store].push({id: employee.id, name: employee.name});
+
+                employeeDataMap.set(employee.id, employee);
+            });
+
+            initializeAreas();
+        }
+
+        // Data Loading from Cloudflare
+        async function loadDataFromCloudflare() {
+            try {
+                const response = await fetch(CLOUDFLARE_DOWNLOAD_URL);
+                if (!response.ok) throw new Error('Failed to fetch');
+                
+                const arrayBuffer = await response.arrayBuffer();
+                processExcelData(new Uint8Array(arrayBuffer));
+            } catch (error) {
+                console.error('Initial load failed:', error);
+                alert('Error loading data. Upload Excel file first.');
+            }
+        }
+
+        // UI Management
+        function initializeAreas() {
+            const areaSelect = document.getElementById('area');
+            areaSelect.innerHTML = '<option value="">Select Area</option>';
+            Object.keys(areaStoreMap).forEach(area => {
+                areaSelect.innerHTML += `<option value="${area}">${area}</option>`;
+            });
+        }
+
+        function updateAreaStores() {
+            const area = document.getElementById('area').value;
+            const storeSelect = document.getElementById('store');
+            storeSelect.innerHTML = '<option value="">Select Store</option>';
+            
+            if (area) {
+                storeSelect.disabled = false;
+                Object.keys(areaStoreMap[area] || {}).forEach(store => {
+                    storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
+                });
+            } else {
+                storeSelect.disabled = true;
+            }
+            document.getElementById('employeeTableSection').style.display = 'none';
+        }
+
+        function updateStoreEmployees() {
+            const area = document.getElementById('area').value;
+            const store = document.getElementById('store').value;
+            const section = document.getElementById('employeeTableSection');
+            const tbody = document.querySelector('#employeeTable tbody');
+
+            tbody.innerHTML = '';
+            section.style.display = 'none';
+
+            if (area && store) {
+                section.style.display = 'block';
+                let totalBudget = 0;
+                let totalAchievement = 0;
+                
+                areaStoreMap[area][store].forEach(emp => {
+                    const data = employeeDataMap.get(emp.id);
+                    totalBudget += data.storeTarget;
+                    totalAchievement += data.budgetAchievement;
+                });
+
+                const storePercentage = (totalAchievement / totalBudget) * 100;
+                let commissionRate = 0.01;
+                if (storePercentage >= 110) commissionRate = 0.02;
+                else if (storePercentage >= 105) commissionRate = 0.015;
+
+                document.getElementById('storeBudgetSummary').textContent = totalBudget.toLocaleString();
+                document.getElementById('storeAchievementSummary').textContent = totalAchievement.toLocaleString();
+                document.getElementById('storePercentageSummary').textContent = storePercentage.toFixed(2);
+                document.getElementById('storeCommissionRate').textContent = (commissionRate * 100).toFixed(1);
+
+                areaStoreMap[area][store].forEach(emp => {
+                    const data = employeeDataMap.get(emp.id);
+                    const commission = data.individualSales * commissionRate;
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>${emp.id}</td>
+                            <td>${emp.name}</td>
+                            <td>${data.individualSales.toLocaleString()}</td>
+                            <td>${(commissionRate * 100).toFixed(1)}%</td>
+                            <td>${commission.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+            }
+        }
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('adminSection').style.display = 'none';
+            document.getElementById('area').disabled = true;
+            document.getElementById('store').disabled = true;
+        });
+    </script>
+</body>
+</html>
