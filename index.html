@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,7 +19,7 @@
 
         body::before {
             content: "";
-            background-image: url('background (1).jpg');
+            background-image: url('image.png.jpeg');
             opacity: 0.5;
             position: absolute;
             top: 0;
@@ -34,7 +33,10 @@
         select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
         button { padding: 12px 25px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
         
-     
+        #employeeTable { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: rgba(255,255,255,0.9); }
+        #employeeTable th, #employeeTable td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        #employeeTable th { background-color: #4CAF50; color: white; }
+        #employeeTable tr:nth-child(even) { background-color: #f2f2f2; }
         .store-summary { background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
         .store-summary p { margin: 5px 0; font-weight: bold; }
 
@@ -50,14 +52,11 @@
             border-radius: 4px;
             margin-top: 10px;
         }
-
-      
-        }
     </style>
 </head>
 <body>
     <h2 style="color: #2c3e50; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
-        RAMADAN INCENTIVE 
+        RAMADAN INCENTIVE UAE
     </h2>
 
     <!-- User Login -->
@@ -124,7 +123,7 @@
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
-            if (password === `Ramadan_${username}`) {
+            if (password === Ramadan_${username}) {
                 alert("User login successful!");
                 document.getElementById('area').disabled = false;
                 document.getElementById('store').disabled = false;
@@ -188,22 +187,7 @@
                 employeeDataMap.set(employee.id, employee);
             });
 
-          
-        }
-                           allEmployees.push({
-                            name: data.name,
-                            store: store,
-                            incentive: incentive
-                        });
-                    });
-                }
-            }
-
-            // Sort by incentive in descending order
-            allEmployees.sort((a, b) => b.incentive - a.incentive);
-
-         
-
+            initializeAreas();
         }
 
         // UI Management
@@ -211,7 +195,7 @@
             const areaSelect = document.getElementById('area');
             areaSelect.innerHTML = '<option value="">Select Area</option>';
             Object.keys(areaStoreMap).forEach(area => {
-                areaSelect.innerHTML += `<option value="${area}">${area}</option>`;
+                areaSelect.innerHTML += <option value="${area}">${area}</option>;
             });
         }
 
@@ -223,7 +207,7 @@
             if (area) {
                 storeSelect.disabled = false;
                 Object.keys(areaStoreMap[area] || {}).forEach(store => {
-                    storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
+                    storeSelect.innerHTML += <option value="${store}">${store}</option>;
                 });
             } else {
                 storeSelect.disabled = true;
@@ -261,7 +245,9 @@
                 document.getElementById('storePercentageSummary').textContent = storePercentage.toFixed(2);
                 document.getElementById('storeCommissionRate').textContent = (commissionRate * 100).toFixed(1);
 
-              
+                areaStoreMap[area][store].forEach(emp => {
+                    const data = employeeDataMap.get(emp.id);
+                    const commission = data.individualSales * commissionRate;
 
                     tbody.innerHTML += `
                         <tr>
@@ -273,8 +259,8 @@
                         </tr>
                     `;
                 });
-
-               
+            }
+        }
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', () => {
@@ -285,3 +271,19 @@
 </body>
 </html>
 
+<footer style="font-size: 9.5px; text-align: center;">
+    Developed by Neupane.S | Version 1.01 | Last Updated: <span id="lastUpdated"></span>
+</footer>
+
+<script>
+    function getLastUpdatedDate() {
+        let now = new Date();
+        now.setMinutes(now.getMinutes() - 30); // Subtract 30 minutes
+        let day = now.getDate().toString().padStart(2, '0');
+        let month = now.toLocaleString('default', { month: 'short' });
+        let year = now.getFullYear();
+        let formattedDate = ${day}-${month}-${year};
+        document.getElementById("lastUpdated").textContent = formattedDate;
+    }
+    getLastUpdatedDate();
+</script>
