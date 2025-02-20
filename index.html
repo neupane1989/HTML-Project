@@ -391,6 +391,19 @@
 </body>
 </html>
 
-<footer>
-    Developed by Neupane.S | Version 1.0 | Last Updated: February 2025  
+
+
+
+
+<footer style="font-size: xx-small; text-align: center;">
+    Developed by Neupane.S | Version 1.0 | Last Updated: <span id="lastUpdated"></span>
 </footer>
+<script>
+    function getLastUpdatedTime() {
+        let now = new Date();
+        now.setMinutes(now.getMinutes() - 30); // Subtract 30 minutes
+        let formattedTime = now.toLocaleString(); // Format as local date & time
+        document.getElementById("lastUpdated").textContent = formattedTime;
+    }
+    getLastUpdatedTime();
+</script>
