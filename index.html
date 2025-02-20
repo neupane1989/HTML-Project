@@ -93,7 +93,7 @@
     <div class="input-group" id="employeeTableSection" style="display: none;">
         <div class="store-summary">
             <p>Store Target: AED <span id="storeBudgetSummary">0</span></p>
-            <p>Target Achievement: AED <span id="storeAchievementSummary">0</span></p>
+            <p>Budget Achievement: AED <span id="storeAchievementSummary">0</span></p>
             <p>Achievement Percentage: <span id="storePercentageSummary">0</span>%</p>
             <p>Commission Rate: <span id="storeCommissionRate">0</span>%</p>
         </div>
@@ -161,52 +161,30 @@
         }
 
         // Data Processor
-function processSheetData(csv) {
-    const workbook = XLSX.read(csv, { type: 'string' });
-    const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-    const jsonData = XLSX.utils.sheet_to_json(firstSheet);
+        function processSheetData(csv) {
+            const workbook = XLSX.read(csv, { type: 'string' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet);
 
-    areaStoreMap = {};
-    employeeDataMap.clear();
-    const storeDataMap = new Map(); // New map to store store target and budget achievement
+            areaStoreMap = {};
+            employeeDataMap.clear();
 
-    jsonData.forEach(row => {
-        const area = row['Area'];
-        const store = row['Store Location'];
-        const employee = {
-            id: row['HRMS ID'].toString(),
-            name: row['Employee Name'],
-            individualSales: row['Individual Sales'],
-            storeTarget: row['Store Target'],
-            budgetAchievement: row['Budget Achievement']
-        };
+            jsonData.forEach(row => {
+                const area = row['Area'];
+                const store = row['Store Location'];
+                const employee = {
+                    id: row['HRMS ID'].toString(),
+                    name: row['Employee Name'],
+                    individualSales: row['Individual Sales'],
+                    storeTarget: row['Store Target'],
+                    budgetAchievement: row['Budget Achievement']
+                };
 
-        if (!areaStoreMap[area]) areaStoreMap[area] = {};
-        if (!areaStoreMap[area][store]) areaStoreMap[area][store] = [];
-        areaStoreMap[area][store].push({ id: employee.id, name: employee.name });
+                if (!areaStoreMap[area]) areaStoreMap[area] = {};
+                if (!areaStoreMap[area][store]) areaStoreMap[area][store] = [];
+                areaStoreMap[area][store].push({ id: employee.id, name: employee.name });
 
-        // Store store target and target achievement only once per store
-        if (!storeDataMap.has(store)) {
-            storeDataMap.set(store, {
-                storeTarget: employee.storeTarget,
-                targetAchievement: employee.targetAchievement
-            });
-        }
-
-        employeeDataMap.set(employee.id, employee);
-    });
-
-    // Update employeeDataMap with store target and target achievement from storeDataMap
-    employeeDataMap.forEach(employee => {
-        const storeData = storeDataMap.get(employee.storeLocation);
-        if (storeData) {
-            employee.storeTarget = storeData.storeTarget;
-            employee.budgetAchievement = storeData.budgetAchievement;
-        }
-    });
-
-    initializeAreas();
-}
+                employeeDataMap.set(employee.id, employee);
             });
 
             initializeAreas();
