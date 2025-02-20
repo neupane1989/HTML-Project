@@ -19,8 +19,8 @@
 
         body::before {
             content: "";
-            background-image: url('background (1).jpg');
-            opacity: 0.5;
+            background-image: url('image.png.jpeg');
+            opacity: 0.4;
             position: absolute;
             top: 0;
             left: 0;
@@ -33,10 +33,10 @@
         select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
         button { padding: 12px 25px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
         
-        #employeeTable, #topEarnersTable { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: rgba(255,255,255,0.9); }
-        #employeeTable th, #employeeTable td, #topEarnersTable th, #topEarnersTable td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        #employeeTable th, #topEarnersTable th { background-color: #4CAF50; color: white; }
-        #employeeTable tr:nth-child(even), #topEarnersTable tr:nth-child(even) { background-color: #f2f2f2; }
+        #employeeTable { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: rgba(255,255,255,0.9); }
+        #employeeTable th, #employeeTable td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        #employeeTable th { background-color: #4CAF50; color: white; }
+        #employeeTable tr:nth-child(even) { background-color: #f2f2f2; }
         .store-summary { background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
         .store-summary p { margin: 5px 0; font-weight: bold; }
 
@@ -52,20 +52,11 @@
             border-radius: 4px;
             margin-top: 10px;
         }
-
-        /* Top Earners Section */
-        .top-earners-section {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: rgba(255,255,255,0.9);
-            border: 2px solid #4CAF50;
-            border-radius: 4px;
-        }
     </style>
 </head>
 <body>
     <h2 style="color: #2c3e50; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
-        RAMADAN INCENTIVE
+        RAMADAN INCENTIVE CALCULATOR
     </h2>
 
     <!-- User Login -->
@@ -101,8 +92,8 @@
     <!-- Employee Table -->
     <div class="input-group" id="employeeTableSection" style="display: none;">
         <div class="store-summary">
-            <p>Store Target: AED <span id="storeTargetSummary">0</span></p>
-            <p>Target Achievement: AED <span id="storeAchievementSummary">0</span></p>
+            <p>Store Target: AED <span id="storeBudgetSummary">0</span></p>
+            <p>Budget Achievement: AED <span id="storeAchievementSummary">0</span></p>
             <p>Achievement Percentage: <span id="storePercentageSummary">0</span>%</p>
             <p>Commission Rate: <span id="storeCommissionRate">0</span>%</p>
         </div>
@@ -116,23 +107,7 @@
                     <th>Store Category</th>
                     <th>Individual Sales</th>
                     <th>Commission %</th>
-                    <th>Incentive</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <!-- Top 10 Incentive Earners -->
-    <div class="top-earners-section" id="topEarnersSection" style="display: none;">
-        <h3>Top 10 Incentive Earners (Sales Associates & Sr. Sales Associates)</h3>
-        <table id="topEarnersTable">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Employee Name</th>
-                    <th>Store Name</th>
-                    <th>Incentive (AED)</th>
+                    <th>Commission</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -140,7 +115,7 @@
     </div>
 
     <script>
-        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
+        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/[YOUR_SHEET_ID]/export?format=csv";
 
         let employeeDataMap = new Map();
         let areaStoreMap = {};
@@ -202,11 +177,11 @@
                 const employee = {
                     id: row['HRMS ID'].toString(),
                     name: row['Employee Name'],
-                    role: row['Role'],
-                    storeCategory: row['Store Category'],
+                    role: row['Role'], // New column
+                    storeCategory: row['Store Category'], // New column
                     individualSales: row['Individual Sales'],
                     storeTarget: row['Store Target'],
-                    targetAchievement: row['Target Achievement']
+                    budgetAchievement: row['Budget Achievement']
                 };
 
                 if (!areaStoreMap[area]) areaStoreMap[area] = {};
@@ -223,73 +198,17 @@
         function calculateManagerIncentive(storePercentage, storeCategory, totalAchievement) {
             let managerRate = 0;
             if (storeCategory === 'A') {
-                if (storePercentage < 110) managerRate = 0.0015;
-                else managerRate = 0.0017;
-            } else if (storeCategory === 'B') {
-                if (storePercentage < 110) managerRate = 0.0020;
+                if (storePercentage < 105) managerRate = 0.0017;
+                else if (storePercentage < 110) managerRate = 0.0020;
                 else managerRate = 0.0024;
-            } else if (storeCategory === 'C') {
-                if (storePercentage < 110) managerRate = 0.0025;
-                else managerRate = 0.0032;
             }
+            // Add logic for Category B and C later
             return totalAchievement * managerRate;
         }
 
         // Calculate Assistant Manager Incentive
         function calculateAssistantManagerIncentive(managerIncentive, individualSales, commissionRate) {
             return (managerIncentive / 2) + (individualSales * commissionRate);
-        }
-
-        // Get Top 10 Incentive Earners (Sales Associates & Sr. Sales Associates)
-        function getTop10IncentiveEarners() {
-            const allEmployees = [];
-            for (const area in areaStoreMap) {
-                for (const store in areaStoreMap[area]) {
-                    areaStoreMap[area][store].forEach(emp => {
-                        const data = employeeDataMap.get(emp.id);
-                        if (data.role === 'Sales Associate' || data.role === 'Sr. Sales Associate') {
-                            const storePercentage = (data.targetAchievement / data.storeTarget) * 100;
-                            let commissionRate = 0.01;
-                            if (storePercentage >= 110) commissionRate = 0.02;
-                            else if (storePercentage >= 105) commissionRate = 0.015;
-
-                            const incentive = data.individualSales * commissionRate;
-                            allEmployees.push({
-                                name: data.name,
-                                store: store,
-                                incentive: incentive
-                            });
-                        }
-                    });
-                }
-            }
-
-            // Sort by incentive in descending order
-            allEmployees.sort((a, b) => b.incentive - a.incentive);
-
-            // Return top 10
-            return allEmployees.slice(0, 10);
-        }
-
-        // Display Top 10 Incentive Earners
-        function displayTop10IncentiveEarners() {
-            const topEarners = getTop10IncentiveEarners();
-            const tbody = document.querySelector('#topEarnersTable tbody');
-            tbody.innerHTML = '';
-
-            topEarners.forEach((emp, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${emp.name}</td>
-                        <td>${emp.store}</td>
-                        <td>${emp.incentive.toLocaleString()}</td>
-                    </tr>
-                `;
-            });
-
-            // Show the Top 10 section
-            document.getElementById('topEarnersSection').style.display = 'block';
         }
 
         // UI Management
@@ -328,21 +247,21 @@
 
             if (area && store) {
                 section.style.display = 'block';
-                let totalTarget = 0;
+                let totalBudget = 0;
                 let totalAchievement = 0;
                 
                 areaStoreMap[area][store].forEach(emp => {
                     const data = employeeDataMap.get(emp.id);
-                    totalTarget += data.storeTarget;
-                    totalAchievement += data.targetAchievement;
+                    totalBudget += data.storeTarget;
+                    totalAchievement += data.budgetAchievement;
                 });
 
-                const storePercentage = (totalAchievement / totalTarget) * 100;
+                const storePercentage = (totalAchievement / totalBudget) * 100;
                 let commissionRate = 0.01;
                 if (storePercentage >= 110) commissionRate = 0.02;
                 else if (storePercentage >= 105) commissionRate = 0.015;
 
-                document.getElementById('storeTargetSummary').textContent = totalTarget.toLocaleString();
+                document.getElementById('storeBudgetSummary').textContent = totalBudget.toLocaleString();
                 document.getElementById('storeAchievementSummary').textContent = totalAchievement.toLocaleString();
                 document.getElementById('storePercentageSummary').textContent = storePercentage.toFixed(2);
                 document.getElementById('storeCommissionRate').textContent = (commissionRate * 100).toFixed(1);
@@ -356,9 +275,7 @@
 
                     if (data.role === 'Manager') {
                         commission = calculateManagerIncentive(storePercentage, data.storeCategory, totalAchievement);
-                    } else if (data.role === 'Assistant Manager' || 
-                              data.role === 'Supervisor' || 
-                              data.role === 'Second In Charge') {
+                    } else if (data.role === 'Assistant Manager') {
                         commission = calculateAssistantManagerIncentive(managerIncentive, data.individualSales, commissionRate);
                     } else {
                         commission = data.individualSales * commissionRate;
@@ -376,9 +293,6 @@
                         </tr>
                     `;
                 });
-
-                // Display Top 10 Incentive Earners
-                displayTop10IncentiveEarners();
             }
         }
 
@@ -395,7 +309,7 @@
 
 
 
-<footer style="font-size: 9px; text-align: center;">
+<footer style="font-size: 10px; text-align: center;">
     Developed by Neupane.S | Version 1.0 | Last Updated: <span id="lastUpdated"></span>
 </footer>
 
