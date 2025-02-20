@@ -185,18 +185,18 @@ function processSheetData(csv) {
         if (!areaStoreMap[area][store]) areaStoreMap[area][store] = [];
         areaStoreMap[area][store].push({ id: employee.id, name: employee.name });
 
-        // Store store target and budget achievement only once per store
+        // Store store target and target achievement only once per store
         if (!storeDataMap.has(store)) {
             storeDataMap.set(store, {
                 storeTarget: employee.storeTarget,
-                budgetAchievement: employee.budgetAchievement
+                targetAchievement: employee.targetAchievement
             });
         }
 
         employeeDataMap.set(employee.id, employee);
     });
 
-    // Update employeeDataMap with store target and budget achievement from storeDataMap
+    // Update employeeDataMap with store target and target achievement from storeDataMap
     employeeDataMap.forEach(employee => {
         const storeData = storeDataMap.get(employee.storeLocation);
         if (storeData) {
