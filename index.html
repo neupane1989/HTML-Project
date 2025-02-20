@@ -1,25 +1,9 @@
-[11:57 AM, 2/20/2025] JS: <footer style="font-size: 8px; text-align: center;">
-    Developed by Your Name | Version 1.0 | Last Updated: <span id="lastUpdated"></span>
-</footer>
-
-<script>
-    function getLastUpdatedDate() {
-        let now = new Date();
-        now.setMinutes(now.getMinutes() - 30); // Subtract 30 minutes
-        let day = now.getDate().toString().padStart(2, '0');
-        let month = now.toLocaleString('default', { month: 'short' });
-        let year = now.getFullYear();
-        let formattedDate = ${day}-${month}-${year};
-        document.getElementById("lastUpdated").textContent = formattedDate;
-    }
-    getLastUpdatedDate();
-</script>
-[2:37 PM, 2/20/2025] JS: <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAMADAN INCENTIVE CALCULATOR</title>
+    <title>RAMADAN INCENTIVE UAE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* Keep all your existing styles */
@@ -449,16 +433,18 @@
 </html>
 
 
-<footer style="font-size: 10px; text-align: center;">
-    Developed Neupane.S | Version 1.0 | Last Updated: <span id="lastUpdated"></span>
+<footer style="font-size: 9.5px; text-align: center;">
+   Neupane.S | Version 1.0 | Last Updated: <span id="lastUpdated"></span>
 </footer>
 
 <script>
     function getLastUpdatedDate() {
         let now = new Date();
         now.setMinutes(now.getMinutes() - 30); // Subtract 30 minutes
-        let options = { day: '2-digit', month: 'short', year: 'numeric' };
-        let formattedDate = now.toLocaleDateString('en-GB', options).replace(',', ''); // Format as DD-MMM-YYYY
+        let day = now.getDate().toString().padStart(2, '0');
+        let month = now.toLocaleString('default', { month: 'short' });
+        let year = now.getFullYear();
+        let formattedDate = ${day}-${month}-${year};
         document.getElementById("lastUpdated").textContent = formattedDate;
     }
     getLastUpdatedDate();
