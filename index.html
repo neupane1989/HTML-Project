@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAMADAN INCENTIVE CALCULATOR</title>
+    <title>RAMADAN INCENTIVE UAE</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* Keep all your existing styles */
@@ -34,10 +34,7 @@
         select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
         button { padding: 12px 25px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
         
-        #employeeTable, #topEarnersTable { width: 100%; border-collapse: collapse; margin-top: 15px; background-color: rgba(255,255,255,0.9); }
-        #employeeTable th, #employeeTable td, #topEarnersTable th, #topEarnersTable td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        #employeeTable th, #topEarnersTable th { background-color: #4CAF50; color: white; }
-        #employeeTable tr:nth-child(even), #topEarnersTable tr:nth-child(even) { background-color: #f2f2f2; }
+     
         .store-summary { background-color: #e8f5e9; padding: 15px; border-radius: 4px; margin-bottom: 20px; }
         .store-summary p { margin: 5px 0; font-weight: bold; }
 
@@ -54,13 +51,7 @@
             margin-top: 10px;
         }
 
-        /* Top Earners Section */
-        .top-earners-section {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: rgba(255,255,255,0.9);
-            border: 2px solid #4CAF50;
-            border-radius: 4px;
+      
         }
     </style>
 </head>
@@ -103,7 +94,7 @@
     <div class="input-group" id="employeeTableSection" style="display: none;">
         <div class="store-summary">
             <p>Store Target: AED <span id="storeBudgetSummary">0</span></p>
-            <p>Budget Achievement: AED <span id="storeAchievementSummary">0</span></p>
+            <p>target Achievement: AED <span id="storeAchievementSummary">0</span></p>
             <p>Achievement Percentage: <span id="storePercentageSummary">0</span>%</p>
             <p>Commission Rate: <span id="storeCommissionRate">0</span>%</p>
         </div>
@@ -113,27 +104,9 @@
                 <tr>
                     <th>HRMS ID</th>
                     <th>Employee Name</th>
-                    <th>Role</th>
-                    <th>Store Category</th>
                     <th>Individual Sales</th>
                     <th>Commission %</th>
                     <th>Incentive</th>
-                </tr>
-            </thead>
-            <tbody></tbody>
-        </table>
-    </div>
-
-    <!-- Top 10 Incentive Earners -->
-    <div class="top-earners-section" id="topEarnersSection" style="display: none;">
-        <h3>Top 10 Incentive Earners</h3>
-        <table id="topEarnersTable">
-            <thead>
-                <tr>
-                    <th>Rank</th>
-                    <th>Employee Name</th>
-                    <th>Store Name</th>
-                    <th>Incentive (AED)</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -203,8 +176,6 @@
                 const employee = {
                     id: row['HRMS ID'].toString(),
                     name: row['Employee Name'],
-                    role: row['Role'], // New column
-                    storeCategory: row['Store Category'], // New column
                     individualSales: row['Individual Sales'],
                     storeTarget: row['Store Target'],
                     budgetAchievement: row['Target Achievement']
@@ -217,49 +188,9 @@
                 employeeDataMap.set(employee.id, employee);
             });
 
-            initializeAreas();
+          
         }
-
-        // Calculate Manager Incentive
-        function calculateManagerIncentive(storePercentage, storeCategory, totalAchievement) {
-            let managerRate = 0;
-            if (storeCategory === 'A') {
-                if (storePercentage < 105) managerRate = 0.0017;
-                else if (storePercentage < 110) managerRate = 0.0020;
-                else managerRate = 0.0024;
-            }
-            // Add logic for Category B and C later
-            return totalAchievement * managerRate;
-        }
-
-        // Calculate Assistant Manager Incentive
-        function calculateAssistantManagerIncentive(managerIncentive, individualSales, commissionRate) {
-            return (managerIncentive / 2) + (individualSales * commissionRate);
-        }
-
-        // Get Top 10 Incentive Earners
-        function getTop10IncentiveEarners() {
-            const allEmployees = [];
-            for (const area in areaStoreMap) {
-                for (const store in areaStoreMap[area]) {
-                    areaStoreMap[area][store].forEach(emp => {
-                        const data = employeeDataMap.get(emp.id);
-                        const storePercentage = (data.budgetAchievement / data.storeTarget) * 100;
-                        let commissionRate = 0.01;
-                        if (storePercentage >= 110) commissionRate = 0.02;
-                        else if (storePercentage >= 105) commissionRate = 0.015;
-
-                        let incentive = 0;
-                        if (data.role === 'Manager') {
-                            incentive = calculateManagerIncentive(storePercentage, data.storeCategory, data.budgetAchievement);
-                        } else if (data.role === 'Assistant Manager') {
-                            const managerIncentive = calculateManagerIncentive(storePercentage, data.storeCategory, data.budgetAchievement);
-                            incentive = calculateAssistantManagerIncentive(managerIncentive, data.individualSales, commissionRate);
-                        } else {
-                            incentive = data.individualSales * commissionRate;
-                        }
-
-                        allEmployees.push({
+                           allEmployees.push({
                             name: data.name,
                             store: store,
                             incentive: incentive
@@ -271,29 +202,8 @@
             // Sort by incentive in descending order
             allEmployees.sort((a, b) => b.incentive - a.incentive);
 
-            // Return top 10
-            return allEmployees.slice(0, 10);
-        }
+         
 
-        // Display Top 10 Incentive Earners
-        function displayTop10IncentiveEarners() {
-            const topEarners = getTop10IncentiveEarners();
-            const tbody = document.querySelector('#topEarnersTable tbody');
-            tbody.innerHTML = '';
-
-            topEarners.forEach((emp, index) => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${emp.name}</td>
-                        <td>${emp.store}</td>
-                        <td>${emp.incentive.toLocaleString()}</td>
-                    </tr>
-                `;
-            });
-
-            // Show the Top 10 section
-            document.getElementById('topEarnersSection').style.display = 'block';
         }
 
         // UI Management
@@ -351,27 +261,12 @@
                 document.getElementById('storePercentageSummary').textContent = storePercentage.toFixed(2);
                 document.getElementById('storeCommissionRate').textContent = (commissionRate * 100).toFixed(1);
 
-                // Calculate Manager Incentive
-                const managerIncentive = calculateManagerIncentive(storePercentage, data.storeCategory, totalAchievement);
-
-                areaStoreMap[area][store].forEach(emp => {
-                    const data = employeeDataMap.get(emp.id);
-                    let commission = 0;
-
-                    if (data.role === 'Manager') {
-                        commission = calculateManagerIncentive(storePercentage, data.storeCategory, totalAchievement);
-                    } else if (data.role === 'Assistant Manager') {
-                        commission = calculateAssistantManagerIncentive(managerIncentive, data.individualSales, commissionRate);
-                    } else {
-                        commission = data.individualSales * commissionRate;
-                    }
+              
 
                     tbody.innerHTML += `
                         <tr>
                             <td>${emp.id}</td>
                             <td>${emp.name}</td>
-                            <td>${data.role}</td>
-                            <td>${data.storeCategory}</td>
                             <td>${data.individualSales.toLocaleString()}</td>
                             <td>${(commissionRate * 100).toFixed(1)}%</td>
                             <td>${commission.toLocaleString()}</td>
@@ -379,10 +274,7 @@
                     `;
                 });
 
-                // Display Top 10 Incentive Earners
-                displayTop10IncentiveEarners();
-            }
-        }
+               
 
         // Initialize Application
         document.addEventListener('DOMContentLoaded', () => {
