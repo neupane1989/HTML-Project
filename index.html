@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RAMADAN INCENTIVE UAE</title>
+    <title>RAMADAN INCENTIVE CALCULATOR</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         /* Keep all your existing styles */
@@ -19,8 +19,8 @@
 
         body::before {
             content: "";
-            background-image: url('background (1).jpg');
-            opacity: 0.5;
+            background-image: url('image.png.jpeg');
+            opacity: 0.4;
             position: absolute;
             top: 0;
             left: 0;
@@ -41,22 +41,11 @@
         .store-summary p { margin: 5px 0; font-weight: bold; }
 
         .user-login { margin-bottom: 20px; }
-
-        /* Loading Indicator Styles */
-        .loading-indicator {
-            display: none; /* Hidden by default */
-            padding: 10px;
-            background-color: #4CAF50;
-            color: white;
-            text-align: center;
-            border-radius: 4px;
-            margin-top: 10px;
-        }
     </style>
 </head>
 <body>
     <h2 style="color: #2c3e50; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
-        RAMADAN INCENTIVE UAE
+        RAMADAN INCENTIVE CALCULATOR
     </h2>
 
     <!-- User Login -->
@@ -70,8 +59,6 @@
             <input type="password" id="password" placeholder="Enter Password">
         </div>
         <button onclick="verifyUser()">Login</button>
-        <!-- Loading Indicator -->
-        <div id="loadingIndicator" class="loading-indicator">INCENTIVE LOADING...</div>
     </div>
 
     <!-- User Interface -->
@@ -93,7 +80,7 @@
     <div class="input-group" id="employeeTableSection" style="display: none;">
         <div class="store-summary">
             <p>Store Target: AED <span id="storeBudgetSummary">0</span></p>
-            <p>target Achievement: AED <span id="storeAchievementSummary">0</span></p>
+            <p>Budget Achievement: AED <span id="storeAchievementSummary">0</span></p>
             <p>Achievement Percentage: <span id="storePercentageSummary">0</span>%</p>
             <p>Commission Rate: <span id="storeCommissionRate">0</span>%</p>
         </div>
@@ -105,7 +92,7 @@
                     <th>Employee Name</th>
                     <th>Individual Sales</th>
                     <th>Commission %</th>
-                    <th>Incentive</th>
+                    <th>Commission</th>
                 </tr>
             </thead>
             <tbody></tbody>
@@ -119,7 +106,7 @@
         let areaStoreMap = {};
 
         // User Login Function
-        async function verifyUser() {
+        function verifyUser() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
@@ -127,19 +114,7 @@
                 alert("User login successful!");
                 document.getElementById('area').disabled = false;
                 document.getElementById('store').disabled = false;
-
-                // Show loading indicator
-                document.getElementById('loadingIndicator').style.display = 'block';
-
-                try {
-                    await loadDataFromGoogleSheets();
-                } catch (error) {
-                    console.error('Error loading data:', error);
-                    alert('Failed to load data. Please try again.');
-                } finally {
-                    // Hide loading indicator
-                    document.getElementById('loadingIndicator').style.display = 'none';
-                }
+                loadDataFromGoogleSheets();
             } else {
                 alert("Invalid HRMS ID or password!");
             }
@@ -156,7 +131,6 @@
             } catch (error) {
                 console.error('Data load failed:', error);
                 alert('Error loading data. Ensure: \n1. Sheet is published to web \n2. URL is correct \n3. Sharing is set to "Anyone with the link"');
-                throw error; // Re-throw the error to handle it in verifyUser
             }
         }
 
@@ -177,7 +151,7 @@
                     name: row['Employee Name'],
                     individualSales: row['Individual Sales'],
                     storeTarget: row['Store Target'],
-                    budgetAchievement: row['Target Achievement']
+                    budgetAchievement: row['Budget Achievement']
                 };
 
                 if (!areaStoreMap[area]) areaStoreMap[area] = {};
@@ -270,20 +244,3 @@
     </script>
 </body>
 </html>
-
-<footer style="font-size: 9.5px; text-align: center;">
-    Developed by Neupane.S | Version 1.01 | Last Updated: <span id="lastUpdated"></span>
-</footer>
-
-<script>
-    function getLastUpdatedDate() {
-        let now = new Date();
-        now.setMinutes(now.getMinutes() - 30); // Subtract 30 minutes
-        let day = now.getDate().toString().padStart(2, '0');
-        let month = now.toLocaleString('default', { month: 'short' });
-        let year = now.getFullYear();
-        let formattedDate = ${day}-${month}-${year};
-        document.getElementById("lastUpdated").textContent = formattedDate;
-    }
-    getLastUpdatedDate();
-</script>
