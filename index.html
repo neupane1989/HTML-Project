@@ -395,15 +395,17 @@
 
 
 
-<footer style="font-size: xx-small; text-align: center;">
+<footer style="font-size: 9px; text-align: center;">
     Developed by Neupane.S | Version 1.0 | Last Updated: <span id="lastUpdated"></span>
 </footer>
+
 <script>
-    function getLastUpdatedTime() {
+    function getLastUpdatedDate() {
         let now = new Date();
         now.setMinutes(now.getMinutes() - 30); // Subtract 30 minutes
-        let formattedTime = now.toLocaleString(); // Format as local date & time
-        document.getElementById("lastUpdated").textContent = formattedTime;
+        let options = { day: '2-digit', month: 'short', year: 'numeric' };
+        let formattedDate = now.toLocaleDateString('en-GB', options).replace(',', ''); // Format as DD-MMM-YYYY
+        document.getElementById("lastUpdated").textContent = formattedDate;
     }
-    getLastUpdatedTime();
+    getLastUpdatedDate();
 </script>
