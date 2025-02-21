@@ -51,11 +51,52 @@
         #employeeTable tr:nth-child(even), .topEmployeesTable tr:nth-child(even), #storePerformanceTable tr:nth-child(even) { 
             background-color: #f2f2f2; 
         }
-        .store-summary { 
-            background-color: #e8f5e9; 
-            padding: 15px; 
-            border-radius: 4px; 
-            margin-bottom: 20px; 
+        .store-summary {
+    margin-bottom: 20px;
+}
+
+.store-summary table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff; /* White background for the table */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    overflow: hidden; /* Ensures rounded corners are visible */
+}
+
+.store-summary th, .store-summary td {
+    padding: 12px 15px;
+    text-align: left;
+}
+
+.store-summary th {
+    background-color: #4CAF50; /* Green header background */
+    color: white; /* White text for header */
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.store-summary td {
+    background-color: #f9f9f9; /* Light gray background for rows */
+    border-bottom: 1px solid #e0e0e0; /* Light border between rows */
+}
+
+.store-summary td:first-child {
+    font-weight: bold; /* Bold text for the metric names */
+    color: #333; /* Darker text for better readability */
+}
+
+.store-summary td:last-child {
+    color: #4CAF50; /* Green text for values to make them stand out */
+}
+
+.store-summary tr:last-child td {
+    border-bottom: none; /* Remove border for the last row */
+}
+
+.store-summary tr:hover td {
+    background-color: #e8f5e9; /* Light green hover effect for rows */
+}
         }
         .store-summary p { 
             margin: 5px 0; 
