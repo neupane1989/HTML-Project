@@ -1,0 +1,70 @@
+/* General Styles */
+body {
+    font-family: Arial, sans-serif;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #f5f5f5; /* Light gray background */
+}
+
+h2 {
+    color: #2c3e50; /* Dark blue for the title */
+    border-bottom: 2px solid #4CAF50; /* Green underline */
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+/* Week Filter Styles */
+#weekFilter {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    background-color: #ffffff; /* White background */
+    color: #333; /* Dark gray text */
+}
+
+/* Rota Table Styles */
+#rotaTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff; /* White background */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    overflow: hidden;
+    margin-top: 20px;
+}
+
+#rotaTable th, #rotaTable td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0; /* Light border between rows */
+}
+
+#rotaTable th {
+    background-color: #34495e; /* Dark blue header background */
+    color: #ffffff; /* White text for headers */
+    font-size: 16px;
+    font-weight: bold;
+    text-transform: uppercase; /* Uppercase headers */
+}
+
+#rotaTable td {
+    background-color: #f9f9f9; /* Light gray background for rows */
+    color: #333; /* Dark gray text */
+}
+
+#rotaTable tr:hover td {
+    background-color: #e8f5e9; /* Light green hover effect */
+}
+
+#rotaTable tr:last-child td {
+    border-bottom: none; /* Remove border for the last row */
+}
+
+/* Highlight Off Days */
+#rotaTable td:contains("Off") {
+    color: #e74c3c; /* Red text for "Off" days */
+    font-weight: bold;
+}
