@@ -143,14 +143,37 @@
 
     <!-- Employee Table -->
     <div class="input-group" id="employeeTableSection" style="display: none;">
-        <div class="store-summary">
-            <p>Store Target: AED <span id="storeBudgetSummary">0</span></p>
-            <p>Budget Achievement: AED <span id="storeAchievementSummary">0</span></p>
-            <p>Achievement Percentage: <span id="storePercentageSummary">0</span>%</p>
-            <p>Commission Rate: <span id="storeCommissionRate">0</span>%</p>
-        </div>
+      <div class="store-summary">
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2" style="background-color: #4CAF50; color: white; font-size: 16px; padding: 15px;">
+                    Store Summary
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Store Target</strong></td>
+                <td>AED <span id="storeBudgetSummary">0</span></td>
+            </tr>
+            <tr>
+                <td><strong>Budget Achievement</strong></td>
+                <td>AED <span id="storeAchievementSummary">0</span></td>
+            </tr>
+            <tr>
+                <td><strong>Achievement Percentage</strong></td>
+                <td><span id="storePercentageSummary">0</span>%</td>
+            </tr>
+            <tr>
+                <td><strong>Commission Rate</strong></td>
+                <td><span id="storeCommissionRate">0</span>%</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-        <table id="employeeTable">
+      <table id="employeeTable">
             <thead>
                 <tr>
                     <th>HRMS ID</th>
