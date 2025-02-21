@@ -251,22 +251,24 @@
             // Process employee data (Sheet1)
             areaStoreMap = {};
             employeeDataMap.clear();
-            const storeDataMap = new Map(); // New map to store store target and budget achievement
+            const storeDataMap = new Map(); // Map to store unique store target and budget achievement
 
             const employeeData = XLSX.utils.sheet_to_json(firstSheet);
             employeeData.forEach(row => {
                 const area = row['Area'];
-                const store = row['Store Location'];
+                const store = row['Store'];
+                const hrmsId = row['HRMS ID'].toString();
                 const employee = {
-                    id: row['HRMS ID'].toString(),
+                    id: hrmsId,
                     name: row['Employee Name'],
                     individualSales: row['Individual Sales'],
                     storeTarget: row['Store Target'],
                     budgetAchievement: row['Budget Achievement'],
-                    storeLocation: store, // Add store location to employee object
-                    area: area // Add area to employee object
+                    storeLocation: store,
+                    area: area
                 };
 
+                // Add employee to areaStoreMap
                 if (!areaStoreMap[area]) areaStoreMap[area] = {};
                 if (!areaStoreMap[area][store]) areaStoreMap[area][store] = [];
                 areaStoreMap[area][store].push({ id: employee.id, name: employee.name });
@@ -279,6 +281,7 @@
                     });
                 }
 
+                // Add employee to employeeDataMap
                 employeeDataMap.set(employee.id, employee);
             });
 
@@ -336,20 +339,36 @@
 
             if (area && store) {
                 section.style.display = 'block';
-                let totalBudget = 0;
-                let totalAchievement = 0;
-                
+
+                // Get unique store target and budget achievement for the selected store
+                const storeData = new Map();
                 areaStoreMap[area][store].forEach(emp => {
                     const data = employeeDataMap.get(emp.id);
-                    totalBudget += data.storeTarget;
-                    totalAchievement += data.budgetAchievement;
+                    if (!storeData.has(data.storeLocation)) {
+                        storeData.set(data.storeLocation, {
+                            storeTarget: data.storeTarget,
+                            budgetAchievement: data.budgetAchievement
+                        });
+                    }
                 });
 
+                // Calculate total store target and budget achievement
+                let totalBudget = 0;
+                let totalAchievement = 0;
+                storeData.forEach(store => {
+                    totalBudget += store.storeTarget;
+                    totalAchievement += store.budgetAchievement;
+                });
+
+                // Calculate achievement percentage
                 const storePercentage = (totalAchievement / totalBudget) * 100;
+
+                // Determine commission rate based on achievement percentage
                 let commissionRate = 0.01;
                 if (storePercentage >= 110) commissionRate = 0.02;
                 else if (storePercentage >= 105) commissionRate = 0.015;
 
+                // Update store summary in the UI
                 document.getElementById('storeBudgetSummary').textContent = totalBudget.toLocaleString();
                 document.getElementById('storeAchievementSummary').textContent = totalAchievement.toLocaleString();
                 document.getElementById('storePercentageSummary').textContent = storePercentage.toFixed(2);
@@ -489,13 +508,10 @@
             document.getElementById('area').disabled = true;
             document.getElementById('store').disabled = true;
         });
-    
-    
-    
     </script>
 
     <footer style="font-size: 9.5px; text-align: center;">
-        Developed by Neupane.S | Version 1.01 | Last Updated: <span id="lastUpdated"></span>
+        Developed by Neupane.S | Version 1.02 | Last Updated: <span id="lastUpdated"></span>
     </footer>
 
     <script>
