@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roster</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -51,6 +52,8 @@
     </table>
 
     <script>
+        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
+
         // Extract query parameters
         const urlParams = new URLSearchParams(window.location.search);
         const area = urlParams.get('area');
@@ -58,19 +61,6 @@
 
         // Display area and store in the title
         document.title = `Roster - ${area} - ${store}`;
-
-        // Fetch and display roster data (example)
-        const rosterData = [
-            {
-                store: store,
-                hrms: "12345",
-                designation: "Manager",
-                staffName: "John Doe",
-                weekNo: "Week 1",
-                dates: ["09:00-17:00", "09:00-17:00", "09:00-17:00", "09:00-17:00", "09:00-17:00", "09:00-17:00"],
-                remarks: "No remarks"
-            }
-        ];
 
         // Function to generate dynamic date headers
         function generateDateHeaders() {
@@ -84,19 +74,43 @@
             }
         }
 
+        // Fetch and process data from Google Sheets
+        async function fetchRotaData() {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const csvData = await response.text();
+                const workbook = XLSX.read(csvData, { type: 'string' });
+                const rotaSheet = workbook.Sheets[workbook.SheetNames[2]]; // Sheet3 for Rota
+                const rotaData = XLSX.utils.sheet_to_json(rotaSheet);
+
+                // Filter data for the selected area and store
+                const filteredData = rotaData.filter(row => row.Area === area && row.Store === store);
+
+                // Populate the table with filtered data
+                populateRosterTable(filteredData);
+            } catch (error) {
+                console.error('Error fetching rota data:', error);
+                alert('Failed to load rota data. Please try again.');
+            }
+        }
+
         // Populate the table with roster data
-        function populateRosterTable() {
+        function populateRosterTable(data) {
             const tbody = document.querySelector('#rosterTable tbody');
-            rosterData.forEach(row => {
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.forEach(row => {
                 tbody.innerHTML += `
                     <tr>
-                        <td>${row.store}</td>
-                        <td>${row.hrms}</td>
-                        <td>${row.designation}</td>
-                        <td>${row.staffName}</td>
-                        <td>${row.weekNo}</td>
-                        ${row.dates.map(date => `<td>${date}</td>`).join('')}
-                        <td>${row.remarks}</td>
+                        <td>${row.Store}</td>
+                        <td>${row.HRMS}</td>
+                        <td>${row.Designation}</td>
+                        <td>${row['Staff Name']}</td>
+                        <td>${row['Week No.']}</td>
+                        ${['17-Feb-25', '18-Feb-25', '19-Feb-25', '20-Feb-25', '21-Feb-25', '22-Feb-25']
+                            .map(date => `<td>${row[date] || ''}</td>`).join('')}
+                        <td>${row.Remarks || ''}</td>
                     </tr>
                 `;
             });
@@ -104,7 +118,7 @@
 
         // Initialize the page
         generateDateHeaders();
-        populateRosterTable();
+        fetchRotaData();
     </script>
 </body>
 </html>
