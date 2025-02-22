@@ -4,16 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAE Ramadan Performance</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-        }
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 10px;
         }
         table {
             width: 100%;
@@ -26,7 +20,7 @@
             text-align: left;
         }
         th {
-            background-color: #2c3e50; /* Dark blue header */
+            background-color: #2c3e50;
             color: white;
         }
         tr:nth-child(even) {
@@ -35,89 +29,65 @@
     </style>
 </head>
 <body>
-    <h1>UAE Ramadan Performance</h1>
+    <h2>UAE Ramadan Performance</h2>
     <table id="performanceTable">
         <thead>
             <tr>
-                <th>Area</th>
-                <th>Location Code</th>
-                <th>Location Name</th>
-                <th>Value_TY</th>
-                <th>TGT_VALUE</th>
-                <th>% TGT Ach</th>
-                <th>Value_LY</th>
-                <th>% Ach on LY</th>
+                <th>STORE NAME</th>
+                <th>HRMS</th>
+                <th>DESIGNATION</th>
+                <th>STAFF NAME</th>
+                <th>Week No.</th>
+                <th>17-Feb-25</th>
+                <th>18-Feb-25</th>
+                <th>19-Feb-25</th>
+                <th>20-Feb-25</th>
+                <th>21-Feb-25</th>
+                <th>22-Feb-25</th>
+                <th>Remarks</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+            <!-- Rows will be dynamically populated -->
+        </tbody>
     </table>
 
     <script>
-        <script>
-    // Check if the user is logged in
-    if (localStorage.getItem('isLoggedIn') !== 'true') {
-        alert('Please login to access this page.');
-        window.location.href = 'index.html'; // Redirect to login page
-    }
+        // Function to dynamically populate the table with data
+        function populatePerformanceTable() {
+            // Example data - replace with actual data fetching logic
+            const data = [
+                {
+                    storeName: 'Store A',
+                    hrms: '12345',
+                    designation: 'Manager',
+                    staffName: 'John Doe',
+                    weekNo: '1',
+                    dates: ['100', '150', '200', '250', '300', '350'],
+                    remarks: 'Good performance'
+                },
+                // Add more rows as needed
+            ];
 
-    const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
-
-    // Rest of the code remains the same...
-</script>
-        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
-
-        // Extract query parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const area = urlParams.get('area');
-        const store = urlParams.get('store');
-
-        // Display area and store in the title
-        document.title = `UAE Ramadan Performance - ${area} - ${store}`;
-
-        // Fetch and process data from Google Sheets
-        async function fetchPerformanceData() {
-            try {
-                const response = await fetch(GOOGLE_SHEETS_URL);
-                if (!response.ok) throw new Error('Failed to fetch data');
-                const csvData = await response.text();
-                const workbook = XLSX.read(csvData, { type: 'string' });
-                const performanceSheet = workbook.Sheets[workbook.SheetNames[1]]; // Sheet2 for UAE Performance
-                const performanceData = XLSX.utils.sheet_to_json(performanceSheet);
-
-                // Filter data for the selected area and store
-                const filteredData = performanceData.filter(row => row.Area === area && row['Location Name'] === store);
-
-                // Populate the table with filtered data
-                populatePerformanceTable(filteredData);
-            } catch (error) {
-                console.error('Error fetching performance data:', error);
-                alert('Failed to load performance data. Please try again.');
-            }
-        }
-
-        // Populate the table with performance data
-        function populatePerformanceTable(data) {
             const tbody = document.querySelector('#performanceTable tbody');
             tbody.innerHTML = ''; // Clear existing rows
 
             data.forEach(row => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${row.Area}</td>
-                        <td>${row['Location Code']}</td>
-                        <td>${row['Location Name']}</td>
-                        <td>${row['Value_TY']}</td>
-                        <td>${row['TGT_VALUE']}</td>
-                        <td>${row['% TGT Ach']}</td>
-                        <td>${row['Value_LY']}</td>
-                        <td>${row['% Ach on LY']}</td>
-                    </tr>
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.storeName}</td>
+                    <td>${row.hrms}</td>
+                    <td>${row.designation}</td>
+                    <td>${row.staffName}</td>
+                    <td>${row.weekNo}</td>
+                    ${row.dates.map(date => `<td>${date}</td>`).join('')}
+                    <td>${row.remarks}</td>
                 `;
+                tbody.appendChild(tr);
             });
         }
 
-        // Initialize the page
-        fetchPerformanceData();
+        populatePerformanceTable();
     </script>
 </body>
 </html>
