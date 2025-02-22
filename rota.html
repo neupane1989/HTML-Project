@@ -63,7 +63,7 @@
                     designation: 'Manager',
                     staffName: 'John Doe',
                     weekNo: '1',
-                    dates: ['Present', 'Present', 'Absent', 'Present', 'Present', 'Present'],
+                    shifts: ['Morning Shift', 'Evening Shift', 'Absent', 'Night Shift', 'Morning Shift', 'Evening Shift'],
                     remarks: 'No remarks'
                 },
                 // Add more rows as needed
@@ -80,7 +80,7 @@
                     <td>${row.designation}</td>
                     <td>${row.staffName}</td>
                     <td>${row.weekNo}</td>
-                    ${row.dates.map(date => `<td>${date}</td>`).join('')}
+                    ${row.shifts.map(shift => `<td>${shift}</td>`).join('')}
                     <td>${row.remarks}</td>
                 `;
                 tbody.appendChild(tr);
