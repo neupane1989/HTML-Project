@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAE Ramadan Performance</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -52,6 +53,8 @@
     </table>
 
     <script>
+        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
+
         // Extract query parameters
         const urlParams = new URLSearchParams(window.location.search);
         const area = urlParams.get('area');
@@ -60,35 +63,50 @@
         // Display area and store in the title
         document.title = `UAE Ramadan Performance - ${area} - ${store}`;
 
-        // Fetch and display performance data (example)
-        const performanceData = [
-            {
-                area: area,
-                locationCode: "LOC001",
-                locationName: store,
-                valueTY: "AED 100,000",
-                tgtValue: "AED 120,000",
-                tgtAch: "83.33%",
-                valueLY: "AED 90,000",
-                achLY: "111.11%"
-            }
-        ];
+        // Fetch and process data from Google Sheets
+        async function fetchPerformanceData() {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const csvData = await response.text();
+                const workbook = XLSX.read(csvData, { type: 'string' });
+                const performanceSheet = workbook.Sheets[workbook.SheetNames[1]]; // Sheet2 for UAE Performance
+                const performanceData = XLSX.utils.sheet_to_json(performanceSheet);
 
-        const tbody = document.querySelector('#performanceTable tbody');
-        performanceData.forEach(row => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${row.area}</td>
-                    <td>${row.locationCode}</td>
-                    <td>${row.locationName}</td>
-                    <td>${row.valueTY}</td>
-                    <td>${row.tgtValue}</td>
-                    <td>${row.tgtAch}</td>
-                    <td>${row.valueLY}</td>
-                    <td>${row.achLY}</td>
-                </tr>
-            `;
-        });
+                // Filter data for the selected area and store
+                const filteredData = performanceData.filter(row => row.Area === area && row['Location Name'] === store);
+
+                // Populate the table with filtered data
+                populatePerformanceTable(filteredData);
+            } catch (error) {
+                console.error('Error fetching performance data:', error);
+                alert('Failed to load performance data. Please try again.');
+            }
+        }
+
+        // Populate the table with performance data
+        function populatePerformanceTable(data) {
+            const tbody = document.querySelector('#performanceTable tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.forEach(row => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${row.Area}</td>
+                        <td>${row['Location Code']}</td>
+                        <td>${row['Location Name']}</td>
+                        <td>${row['Value_TY']}</td>
+                        <td>${row['TGT_VALUE']}</td>
+                        <td>${row['% TGT Ach']}</td>
+                        <td>${row['Value_LY']}</td>
+                        <td>${row['% Ach on LY']}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Initialize the page
+        fetchPerformanceData();
     </script>
 </body>
 </html>
