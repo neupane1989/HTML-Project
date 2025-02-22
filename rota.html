@@ -3,112 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rota</title>
+    <title>Roster</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
         th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 8px;
             text-align: left;
+            border: 1px solid #ddd;
         }
         th {
-            background-color: #2c3e50;
+            background-color: #4CAF50;
             color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
-    <h2>Rota</h2>
-    <table id="rotaTable">
-        <thead>
-            <!-- Headers will be dynamically populated -->
-        </thead>
-        <tbody>
-            <!-- Rows will be dynamically populated -->
-        </tbody>
-    </table>
+    <h1>Roster</h1>
+    <div id="dataContainer"></div>
 
     <script>
-        // Function to dynamically populate the table with data
-        function populateRotaTable(data) {
-            const thead = document.querySelector('#rotaTable thead');
-            const tbody = document.querySelector('#rotaTable tbody');
+        async function fetchData() {
+            const url = `https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/gviz/tq?tqx=out:csv&sheet=Sheet3`;
 
-            // Clear existing content
-            thead.innerHTML = '';
-            tbody.innerHTML = '';
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const csvData = await response.text();
 
-            // Populate headers dynamically
-            if (data.length > 0) {
-                const headerRow = document.createElement('tr');
-                // Extract headers from the keys of the first row
-                const headers = Object.keys(data[0]);
-                headers.forEach(header => {
-                    const th = document.createElement('th');
-                    th.textContent = header; // Use the exact header from the data
-                    headerRow.appendChild(th);
+                // Convert CSV to table
+                const table = document.createElement('table');
+                const rows = csvData.split('\n');
+                rows.forEach((row, rowIndex) => {
+                    const tr = document.createElement('tr');
+                    row.split(',').forEach((cell, cellIndex) => {
+                        const td = document.createElement(rowIndex === 0 ? 'th' : 'td');
+                        td.textContent = cell.trim();
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
                 });
-                thead.appendChild(headerRow);
+
+                // Clear previous table (if any)
+                const dataContainer = document.getElementById('dataContainer');
+                dataContainer.innerHTML = '';
+                dataContainer.appendChild(table);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                alert('Failed to fetch data. Please check the sheet URL or try again later.');
             }
-
-            // Populate rows dynamically
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                Object.values(row).forEach(value => {
-                    const td = document.createElement('td');
-                    td.textContent = value; // Use the exact value from the data
-                    tr.appendChild(td);
-                });
-                tbody.appendChild(tr);
-            });
         }
 
-        // Example data - replace with actual data fetching logic
-        const data = [
-            {
-                "STORE NAME": "Store A",
-                "HRMS": "12345",
-                "DESIGNATION": "Manager",
-                "STAFF NAME": "John Doe",
-                "Week No.": "1",
-                "17-Feb-25": "09:00-17:00",
-                "18-Feb-25": "12:00-20:00",
-                "19-Feb-25": "OFF",
-                "20-Feb-25": "10:00-18:00",
-                "21-Feb-25": "09:00-17:00",
-                "22-Feb-25": "12:00-20:00",
-                "Remarks": "No remarks"
-            },
-            {
-                "STORE NAME": "Store B",
-                "HRMS": "67890",
-                "DESIGNATION": "Assistant",
-                "STAFF NAME": "Jane Smith",
-                "Week No.": "1",
-                "17-Feb-25": "12:00-20:00",
-                "18-Feb-25": "OFF",
-                "19-Feb-25": "09:00-17:00",
-                "20-Feb-25": "12:00-20:00",
-                "21-Feb-25": "10:00-18:00",
-                "22-Feb-25": "09:00-17:00",
-                "Remarks": "No remarks"
-            }
-            // Add more rows as needed
-        ];
-
-        // Populate the table with the data
-        populateRotaTable(data);
+        // Fetch data when the page loads
+        fetchData();
     </script>
 </body>
 </html>
