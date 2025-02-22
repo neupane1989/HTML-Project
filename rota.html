@@ -32,20 +32,7 @@
     <h2>Rota</h2>
     <table id="rotaTable">
         <thead>
-            <tr>
-                <th>STORE NAME</th>
-                <th>HRMS</th>
-                <th>DESIGNATION</th>
-                <th>STAFF NAME</th>
-                <th>Week No.</th>
-                <th>17-Feb-25</th>
-                <th>18-Feb-25</th>
-                <th>19-Feb-25</th>
-                <th>20-Feb-25</th>
-                <th>21-Feb-25</th>
-                <th>22-Feb-25</th>
-                <th>Remarks</th>
-            </tr>
+            <!-- Headers will be dynamically populated -->
         </thead>
         <tbody>
             <!-- Rows will be dynamically populated -->
@@ -54,49 +41,72 @@
 
     <script>
         // Function to dynamically populate the table with data
-        function populateRotaTable(area, store) {
-            // Example data - replace with actual data fetching logic
-            const data = [
-                {
-                    storeName: store,
-                    hrms: '12345',
-                    designation: 'Manager',
-                    staffName: 'John Doe',
-                    weekNo: '1',
-                    shifts: ['09:00-17:00', '12:00-20:00', 'OFF', '10:00-18:00', '09:00-17:00', '12:00-20:00'],
-                    remarks: 'No remarks'
-                },
-                // Add more rows as needed
-            ];
-
+        function populateRotaTable(data) {
+            const thead = document.querySelector('#rotaTable thead');
             const tbody = document.querySelector('#rotaTable tbody');
-            tbody.innerHTML = ''; // Clear existing rows
 
+            // Clear existing content
+            thead.innerHTML = '';
+            tbody.innerHTML = '';
+
+            // Populate headers
+            if (data.length > 0) {
+                const headerRow = document.createElement('tr');
+                Object.keys(data[0]).forEach(key => {
+                    const th = document.createElement('th');
+                    th.textContent = key;
+                    headerRow.appendChild(th);
+                });
+                thead.appendChild(headerRow);
+            }
+
+            // Populate rows
             data.forEach(row => {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.storeName}</td>
-                    <td>${row.hrms}</td>
-                    <td>${row.designation}</td>
-                    <td>${row.staffName}</td>
-                    <td>${row.weekNo}</td>
-                    ${row.shifts.map(shift => `<td>${shift}</td>`).join('')}
-                    <td>${row.remarks}</td>
-                `;
+                Object.values(row).forEach(value => {
+                    const td = document.createElement('td');
+                    td.textContent = value;
+                    tr.appendChild(td);
+                });
                 tbody.appendChild(tr);
             });
         }
 
-        // Get area and store from URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const area = urlParams.get('area');
-        const store = urlParams.get('store');
+        // Example data - replace with actual data fetching logic
+        const data = [
+            {
+                "STORE NAME": "Store A",
+                "HRMS": "12345",
+                "DESIGNATION": "Manager",
+                "STAFF NAME": "John Doe",
+                "Week No.": "1",
+                "17-Feb-25": "09:00-17:00",
+                "18-Feb-25": "12:00-20:00",
+                "19-Feb-25": "OFF",
+                "20-Feb-25": "10:00-18:00",
+                "21-Feb-25": "09:00-17:00",
+                "22-Feb-25": "12:00-20:00",
+                "Remarks": "No remarks"
+            },
+            {
+                "STORE NAME": "Store B",
+                "HRMS": "67890",
+                "DESIGNATION": "Assistant",
+                "STAFF NAME": "Jane Smith",
+                "Week No.": "1",
+                "17-Feb-25": "12:00-20:00",
+                "18-Feb-25": "OFF",
+                "19-Feb-25": "09:00-17:00",
+                "20-Feb-25": "12:00-20:00",
+                "21-Feb-25": "10:00-18:00",
+                "22-Feb-25": "09:00-17:00",
+                "Remarks": "No remarks"
+            }
+            // Add more rows as needed
+        ];
 
-        if (area && store) {
-            populateRotaTable(area, store);
-        } else {
-            alert('Area and Store not specified.');
-        }
+        // Populate the table with the data
+        populateRotaTable(data);
     </script>
 </body>
 </html>
