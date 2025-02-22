@@ -32,20 +32,7 @@
     <h2>UAE Ramadan Performance</h2>
     <table id="performanceTable">
         <thead>
-            <tr>
-                <th>STORE NAME</th>
-                <th>HRMS</th>
-                <th>DESIGNATION</th>
-                <th>STAFF NAME</th>
-                <th>Week No.</th>
-                <th>17-Feb-25</th>
-                <th>18-Feb-25</th>
-                <th>19-Feb-25</th>
-                <th>20-Feb-25</th>
-                <th>21-Feb-25</th>
-                <th>22-Feb-25</th>
-                <th>Remarks</th>
-            </tr>
+            <!-- Headers will be dynamically populated -->
         </thead>
         <tbody>
             <!-- Rows will be dynamically populated -->
@@ -53,41 +40,30 @@
     </table>
 
     <script>
-        // Function to dynamically populate the table with data
-        function populatePerformanceTable() {
-            // Example data - replace with actual data fetching logic
-            const data = [
-                {
-                    storeName: 'Store A',
-                    hrms: '12345',
-                    designation: 'Manager',
-                    staffName: 'John Doe',
-                    weekNo: '1',
-                    dates: ['100', '150', '200', '250', '300', '350'],
-                    remarks: 'Good performance'
-                },
-                // Add more rows as needed
-            ];
-
+        // Function to populate the table with headers and rows
+        function populatePerformanceTable(headers, rows) {
+            const thead = document.querySelector('#performanceTable thead');
             const tbody = document.querySelector('#performanceTable tbody');
-            tbody.innerHTML = ''; // Clear existing rows
 
-            data.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${row.storeName}</td>
-                    <td>${row.hrms}</td>
-                    <td>${row.designation}</td>
-                    <td>${row.staffName}</td>
-                    <td>${row.weekNo}</td>
-                    ${row.dates.map(date => `<td>${date}</td>`).join('')}
-                    <td>${row.remarks}</td>
-                `;
-                tbody.appendChild(tr);
-            });
+            // Populate headers
+            thead.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join('')}</tr>`;
+
+            // Populate rows
+            tbody.innerHTML = rows.map(row => `
+                <tr>${row.map(cell => `<td>${cell}</td>`).join('')}</tr>
+            `).join('');
         }
 
-        populatePerformanceTable();
+        // Get headers and rows from URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const headers = JSON.parse(decodeURIComponent(urlParams.get('headers')));
+        const rows = JSON.parse(decodeURIComponent(urlParams.get('rows')));
+
+        if (headers && rows) {
+            populatePerformanceTable(headers, rows);
+        } else {
+            alert('No table data found.');
+        }
     </script>
 </body>
 </html>
