@@ -4,121 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAE KPI's</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 10px;
-        }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
         }
         th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
+            padding: 8px;
             text-align: left;
+            border: 1px solid #ddd;
         }
         th {
-            background-color: #2c3e50; /* Dark blue header */
+            background-color: #4CAF50;
             color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
         }
     </style>
 </head>
 <body>
     <h1>UAE KPI's</h1>
-    <table id="kpiTable">
-        <thead>
-            <tr>
-                <th>Area</th>
-                <th>Location Code</th>
-                <th>Location Name</th>
-                <th>ATV_TY</th>
-                <th>UPT_TY</th>
-                <th>ASP_TY</th>
-                <th>SPD_TY</th>
-                <th>QPD_TY</th>
-                <th>S Care Value_TY</th>
-                <th>% S Care Cont_TY</th>
-                <th>Hosiery QTY_TY</th>
-                <th>% Hosiery Cont_TY</th>
-                <th>LHB Value_TY</th>
-                <th>% LHB Cont_TY</th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div id="dataContainer"></div>
 
     <script>
-        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
+        async function fetchData() {
+            const url = `https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/gviz/tq?tqx=out:csv&sheet=Sheet4`;
 
-        // Extract query parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const area = urlParams.get('area');
-        const store = urlParams.get('store');
-
-        // Display area and store in the title
-        document.title = `UAE KPI's - ${area} - ${store}`;
-
-        // Fetch and process data from Google Sheets
-        async function fetchKPIData() {
             try {
-                const response = await fetch(GOOGLE_SHEETS_URL);
+                const response = await fetch(url);
                 if (!response.ok) throw new Error('Failed to fetch data');
                 const csvData = await response.text();
-                const workbook = XLSX.read(csvData, { type: 'string' });
-                const kpiSheet = workbook.Sheets[workbook.SheetNames[3]]; // Sheet4 for KPI's
-                const kpiData = XLSX.utils.sheet_to_json(kpiSheet);
 
-                // Filter data for the selected area and store
-                const filteredData = kpiData.filter(row => row.Area === area && row['Location Name'] === store);
+                // Convert CSV to table
+                const table = document.createElement('table');
+                const rows = csvData.split('\n');
+                rows.forEach((row, rowIndex) => {
+                    const tr = document.createElement('tr');
+                    row.split(',').forEach((cell, cellIndex) => {
+                        const td = document.createElement(rowIndex === 0 ? 'th' : 'td');
+                        td.textContent = cell.trim();
+                        tr.appendChild(td);
+                    });
+                    table.appendChild(tr);
+                });
 
-                // Populate the table with filtered data
-                populateKPITable(filteredData);
+                // Clear previous table (if any)
+                const dataContainer = document.getElementById('dataContainer');
+                dataContainer.innerHTML = '';
+                dataContainer.appendChild(table);
             } catch (error) {
-                console.error('Error fetching KPI data:', error);
-                alert('Failed to load KPI data. Please try again.');
+                console.error('Error fetching data:', error);
+                alert('Failed to fetch data. Please check the sheet URL or try again later.');
             }
         }
 
-        // Populate the table with KPI data
-        function populateKPITable(data) {
-            const tbody = document.querySelector('#kpiTable tbody');
-            tbody.innerHTML = ''; // Clear existing rows
-
-            data.forEach(row => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${row.Area}</td>
-                        <td>${row['Location Code']}</td>
-                        <td>${row['Location Name']}</td>
-                        <td>${row['ATV_TY']}</td>
-                        <td>${row['UPT_TY']}</td>
-                        <td>${row['ASP_TY']}</td>
-                        <td>${row['SPD_TY']}</td>
-                        <td>${row['QPD_TY']}</td>
-                        <td>${row['S Care Value_TY']}</td>
-                        <td>${row['% S Care Cont_TY']}</td>
-                        <td>${row['Hosiery QTY_TY']}</td>
-                        <td>${row['% Hosiery Cont_TY']}</td>
-                        <td>${row['LHB Value_TY']}</td>
-                        <td>${row['% LHB Cont_TY']}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        // Initialize the page
-        fetchKPIData();
+        // Fetch data when the page loads
+        fetchData();
     </script>
 </body>
 </html>
