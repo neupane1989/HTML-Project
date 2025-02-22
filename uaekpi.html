@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAE KPI's</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -58,6 +59,8 @@
     </table>
 
     <script>
+        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
+
         // Extract query parameters
         const urlParams = new URLSearchParams(window.location.search);
         const area = urlParams.get('area');
@@ -66,47 +69,56 @@
         // Display area and store in the title
         document.title = `UAE KPI's - ${area} - ${store}`;
 
-        // Fetch and display KPI data (example)
-        const kpiData = [
-            {
-                area: area,
-                locationCode: "LOC001",
-                locationName: store,
-                atvTY: "AED 500",
-                uptTY: "2.5",
-                aspTY: "AED 200",
-                spdTY: "10",
-                qpdTY: "5",
-                sCareValueTY: "AED 50,000",
-                sCareContTY: "10%",
-                hosieryQtyTY: "100",
-                hosieryContTY: "5%",
-                lhbValueTY: "AED 30,000",
-                lhbContTY: "15%"
-            }
-        ];
+        // Fetch and process data from Google Sheets
+        async function fetchKPIData() {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                if (!response.ok) throw new Error('Failed to fetch data');
+                const csvData = await response.text();
+                const workbook = XLSX.read(csvData, { type: 'string' });
+                const kpiSheet = workbook.Sheets[workbook.SheetNames[3]]; // Sheet4 for KPI's
+                const kpiData = XLSX.utils.sheet_to_json(kpiSheet);
 
-        const tbody = document.querySelector('#kpiTable tbody');
-        kpiData.forEach(row => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${row.area}</td>
-                    <td>${row.locationCode}</td>
-                    <td>${row.locationName}</td>
-                    <td>${row.atvTY}</td>
-                    <td>${row.uptTY}</td>
-                    <td>${row.aspTY}</td>
-                    <td>${row.spdTY}</td>
-                    <td>${row.qpdTY}</td>
-                    <td>${row.sCareValueTY}</td>
-                    <td>${row.sCareContTY}</td>
-                    <td>${row.hosieryQtyTY}</td>
-                    <td>${row.hosieryContTY}</td>
-                    <td>${row.lhbValueTY}</td>
-                    <td>${row.lhbContTY}</td>
-                </tr>
-            `;
-        });
+                // Filter data for the selected area and store
+                const filteredData = kpiData.filter(row => row.Area === area && row['Location Name'] === store);
+
+                // Populate the table with filtered data
+                populateKPITable(filteredData);
+            } catch (error) {
+                console.error('Error fetching KPI data:', error);
+                alert('Failed to load KPI data. Please try again.');
+            }
+        }
+
+        // Populate the table with KPI data
+        function populateKPITable(data) {
+            const tbody = document.querySelector('#kpiTable tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.forEach(row => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${row.Area}</td>
+                        <td>${row['Location Code']}</td>
+                        <td>${row['Location Name']}</td>
+                        <td>${row['ATV_TY']}</td>
+                        <td>${row['UPT_TY']}</td>
+                        <td>${row['ASP_TY']}</td>
+                        <td>${row['SPD_TY']}</td>
+                        <td>${row['QPD_TY']}</td>
+                        <td>${row['S Care Value_TY']}</td>
+                        <td>${row['% S Care Cont_TY']}</td>
+                        <td>${row['Hosiery QTY_TY']}</td>
+                        <td>${row['% Hosiery Cont_TY']}</td>
+                        <td>${row['LHB Value_TY']}</td>
+                        <td>${row['% LHB Cont_TY']}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        // Initialize the page
+        fetchKPIData();
     </script>
 </body>
 </html>
