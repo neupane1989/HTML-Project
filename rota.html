@@ -54,6 +54,11 @@
     <script>
         const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
 
+        // Extract query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const area = urlParams.get('area');
+        const store = urlParams.get('store');
+
         // Display area and store in the title
         document.title = `Roster - ${area} - ${store}`;
 
