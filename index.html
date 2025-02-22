@@ -130,6 +130,11 @@
         .store-summary tr:hover td {
             background-color: #e8f5e9; /* Light green hover effect for rows */
         }
+
+        /* ✅ Added: Hide buttons initially */
+        .hidden-buttons {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -167,8 +172,8 @@
         </select>
     </div>
 
-    <!-- Buttons for UAE Performance, Roster, and UAE KPI's -->
-    <div class="input-group">
+    <!-- ✅ Modified: Buttons hidden initially -->
+    <div class="input-group hidden-buttons" id="actionButtons">
         <button id="uaeBtn" disabled onclick="handleUAEPerformance()">UAE Performance</button>
         <button id="rosterBtn" disabled onclick="handleRoster()">Roster</button>
         <button id="kpiBtn" disabled onclick="handleKPI()">UAE KPI's</button>
@@ -234,15 +239,18 @@
         let employeeDataMap = new Map();
         let areaStoreMap = {};
 
-        // ✅ MODIFIED: Enable buttons immediately after login
+        // ✅ MODIFIED: Show buttons after login
         async function verifyUser() {
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
 
             if (password === `Ramadan_${username}`) {
                 alert("User login successful!");
-                
-                // ✅ Activate buttons immediately
+
+                // ✅ Show buttons after login
+                document.getElementById('actionButtons').classList.remove('hidden-buttons');
+
+                // Activate buttons immediately
                 document.getElementById('uaeBtn').disabled = false;
                 document.getElementById('rosterBtn').disabled = false;
                 document.getElementById('kpiBtn').disabled = false;
