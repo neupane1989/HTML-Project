@@ -5,19 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Roster</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
             margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         th, td {
-            padding: 8px;
-            text-align: left;
+            padding: 12px;
             border: 1px solid #ddd;
+            text-align: left;
         }
         th {
             background-color: #4CAF50;
             color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #e8f5e9;
         }
     </style>
 </head>
@@ -26,11 +46,11 @@
     <div id="dataContainer"></div>
 
     <script>
-        async function fetchData() {
-            const url = `https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/gviz/tq?tqx=out:csv&sheet=Sheet3`;
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/gviz/tq?tqx=out:csv&sheet=Sheet3";
 
+        async function fetchData() {
             try {
-                const response = await fetch(url);
+                const response = await fetch(SHEET_URL);
                 if (!response.ok) throw new Error('Failed to fetch data');
                 const csvData = await response.text();
 
