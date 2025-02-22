@@ -49,23 +49,25 @@
             thead.innerHTML = '';
             tbody.innerHTML = '';
 
-            // Populate headers
+            // Populate headers dynamically
             if (data.length > 0) {
                 const headerRow = document.createElement('tr');
-                Object.keys(data[0]).forEach(key => {
+                // Extract headers from the keys of the first row
+                const headers = Object.keys(data[0]);
+                headers.forEach(header => {
                     const th = document.createElement('th');
-                    th.textContent = key;
+                    th.textContent = header; // Use the exact header from the data
                     headerRow.appendChild(th);
                 });
                 thead.appendChild(headerRow);
             }
 
-            // Populate rows
+            // Populate rows dynamically
             data.forEach(row => {
                 const tr = document.createElement('tr');
                 Object.values(row).forEach(value => {
                     const td = document.createElement('td');
-                    td.textContent = value;
+                    td.textContent = value; // Use the exact value from the data
                     tr.appendChild(td);
                 });
                 tbody.appendChild(tr);
