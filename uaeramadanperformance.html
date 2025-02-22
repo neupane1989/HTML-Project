@@ -1,1 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAE Ramadan Performance</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #2c3e50; /* Dark blue header */
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h1>UAE Ramadan Performance</h1>
+    <table id="performanceTable">
+        <thead>
+            <tr>
+                <th>Area</th>
+                <th>Location Code</th>
+                <th>Location Name</th>
+                <th>Value_TY</th>
+                <th>TGT_VALUE</th>
+                <th>% TGT Ach</th>
+                <th>Value_LY</th>
+                <th>% Ach on LY</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
+    <script>
+        // Extract query parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const area = urlParams.get('area');
+        const store = urlParams.get('store');
+
+        // Display area and store in the title
+        document.title = `UAE Ramadan Performance - ${area} - ${store}`;
+
+        // Fetch and display performance data (example)
+        const performanceData = [
+            {
+                area: area,
+                locationCode: "LOC001",
+                locationName: store,
+                valueTY: "AED 100,000",
+                tgtValue: "AED 120,000",
+                tgtAch: "83.33%",
+                valueLY: "AED 90,000",
+                achLY: "111.11%"
+            }
+        ];
+
+        const tbody = document.querySelector('#performanceTable tbody');
+        performanceData.forEach(row => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${row.area}</td>
+                    <td>${row.locationCode}</td>
+                    <td>${row.locationName}</td>
+                    <td>${row.valueTY}</td>
+                    <td>${row.tgtValue}</td>
+                    <td>${row.tgtAch}</td>
+                    <td>${row.valueLY}</td>
+                    <td>${row.achLY}</td>
+                </tr>
+            `;
+        });
+    </script>
+</body>
+</html>
