@@ -3,17 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roster</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <title>Rota</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-        }
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 10px;
         }
         table {
             width: 100%;
@@ -26,7 +20,7 @@
             text-align: left;
         }
         th {
-            background-color: #2c3e50; /* Dark blue header */
+            background-color: #2c3e50;
             color: white;
         }
         tr:nth-child(even) {
@@ -35,90 +29,74 @@
     </style>
 </head>
 <body>
-    <h1>Roster</h1>
-    <table id="rosterTable">
+    <h2>Rota</h2>
+    <table id="rotaTable">
         <thead>
             <tr>
-                <th>Store Name</th>
+                <th>STORE NAME</th>
                 <th>HRMS</th>
-                <th>Designation</th>
-                <th>Staff Name</th>
+                <th>DESIGNATION</th>
+                <th>STAFF NAME</th>
                 <th>Week No.</th>
-                <!-- Dynamic Dates will be inserted here -->
+                <th>17-Feb-25</th>
+                <th>18-Feb-25</th>
+                <th>19-Feb-25</th>
+                <th>20-Feb-25</th>
+                <th>21-Feb-25</th>
+                <th>22-Feb-25</th>
                 <th>Remarks</th>
             </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+            <!-- Rows will be dynamically populated -->
+        </tbody>
     </table>
 
-</script>
-        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
+    <script>
+        // Function to dynamically populate the table with data
+        function populateRotaTable(area, store) {
+            // Example data - replace with actual data fetching logic
+            const data = [
+                {
+                    storeName: store,
+                    hrms: '12345',
+                    designation: 'Manager',
+                    staffName: 'John Doe',
+                    weekNo: '1',
+                    dates: ['Present', 'Present', 'Absent', 'Present', 'Present', 'Present'],
+                    remarks: 'No remarks'
+                },
+                // Add more rows as needed
+            ];
 
-        // Extract query parameters
+            const tbody = document.querySelector('#rotaTable tbody');
+            tbody.innerHTML = ''; // Clear existing rows
+
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${row.storeName}</td>
+                    <td>${row.hrms}</td>
+                    <td>${row.designation}</td>
+                    <td>${row.staffName}</td>
+                    <td>${row.weekNo}</td>
+                    ${row.dates.map(date => `<td>${date}</td>`).join('')}
+                    <td>${row.remarks}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Get area and store from URL parameters
         const urlParams = new URLSearchParams(window.location.search);
         const area = urlParams.get('area');
         const store = urlParams.get('store');
 
-        // Display area and store in the title
-        document.title = `Roster - ${area} - ${store}`;
-
-        // Function to generate dynamic date headers
-        function generateDateHeaders() {
-            const thead = document.querySelector('#rosterTable thead tr');
-            const today = new Date();
-            for (let i = 0; i < 6; i++) {
-                const date = new Date(today);
-                date.setDate(today.getDate() + i);
-                const dateString = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
-                thead.innerHTML += `<th>${dateString}</th>`;
-            }
+        if (area && store) {
+            populateRotaTable(area, store);
+        } else {
+            alert('Area and Store not specified.');
         }
-
-        // Fetch and process data from Google Sheets
-        async function fetchRotaData() {
-            try {
-                const response = await fetch(GOOGLE_SHEETS_URL);
-                if (!response.ok) throw new Error('Failed to fetch data');
-                const csvData = await response.text();
-                const workbook = XLSX.read(csvData, { type: 'string' });
-                const rotaSheet = workbook.Sheets[workbook.SheetNames[2]]; // Sheet3 for Rota
-                const rotaData = XLSX.utils.sheet_to_json(rotaSheet);
-
-                // Filter data for the selected area and store
-                const filteredData = rotaData.filter(row => row.Area === area && row.Store === store);
-
-                // Populate the table with filtered data
-                populateRosterTable(filteredData);
-            } catch (error) {
-                console.error('Error fetching rota data:', error);
-                alert('Failed to load rota data. Please try again.');
-            }
-        }
-
-        // Populate the table with roster data
-        function populateRosterTable(data) {
-            const tbody = document.querySelector('#rosterTable tbody');
-            tbody.innerHTML = ''; // Clear existing rows
-
-            data.forEach(row => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${row.Store}</td>
-                        <td>${row.HRMS}</td>
-                        <td>${row.Designation}</td>
-                        <td>${row['Staff Name']}</td>
-                        <td>${row['Week No.']}</td>
-                        ${['17-Feb-25', '18-Feb-25', '19-Feb-25', '20-Feb-25', '21-Feb-25', '22-Feb-25']
-                            .map(date => `<td>${row[date] || ''}</td>`).join('')}
-                        <td>${row.Remarks || ''}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        // Initialize the page
-        generateDateHeaders();
-        fetchRotaData();
     </script>
 </body>
 </html>
