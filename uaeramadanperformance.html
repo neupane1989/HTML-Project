@@ -1,84 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UAE Performance</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 1000px;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: #f9f9f9;
-        }
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 10px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #e8f5e9;
-        }
-    </style>
-</head>
-<body>
-    <h1>UAE Performance</h1>
-    <div id="dataContainer"></div>
+<!-- Same structure as rota.html with these changes -->
 
-    <script>
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/gviz/tq?tqx=out:csv&sheet=Sheet2";
+<!-- Change title -->
+<title>UAE PERFORMANCE</title>
 
-        async function fetchData() {
-            try {
-                const response = await fetch(SHEET_URL);
-                if (!response.ok) throw new Error('Failed to fetch data');
-                const csvData = await response.text();
+<!-- Change table headers -->
+<table id="performanceTable">
+    <thead>
+        <tr>
+            <th>AREA</th>
+            <th>STORE CODE</th>
+            <th>STORE NAME</th>
+            <th>VALUE TY</th>
+            <th>TGT VALUE</th>
+            <th>% TGT ACH</th>
+            <th>VALUE LY</th>
+            <th>% ACH LY</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
-                // Convert CSV to table
-                const table = document.createElement('table');
-                const rows = csvData.split('\n');
-                rows.forEach((row, rowIndex) => {
-                    const tr = document.createElement('tr');
-                    row.split(',').forEach((cell, cellIndex) => {
-                        const td = document.createElement(rowIndex === 0 ? 'th' : 'td');
-                        td.textContent = cell.trim();
-                        tr.appendChild(td);
-                    });
-                    table.appendChild(tr);
-                });
+<!-- Update updateTable function -->
+function updateTable() {
+    const area = document.getElementById('area').value;
+    const store = document.getElementById('store').value;
+    
+    const filteredData = allData.filter(row => {
+        return (area === 'All' || row.Area === area) && 
+               (store === 'All' || row.Store === store);
+    });
 
-                // Clear previous table (if any)
-                const dataContainer = document.getElementById('dataContainer');
-                dataContainer.innerHTML = '';
-                dataContainer.appendChild(table);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                alert('Failed to fetch data. Please check the sheet URL or try again later.');
-            }
-        }
+    const tbody = document.querySelector('#performanceTable tbody');
+    tbody.innerHTML = filteredData.map(row => `
+        <tr>
+            <td>${row.Area}</td>
+            <td>${row['Store Code']}</td>
+            <td>${row.Store}</td>
+            <td>${row.Value_TY}</td>
+            <td>${row.TGT_VALUE}</td>
+            <td>${row['% TGT Ach']}</td>
+            <td>${row.Value_LY}</td>
+            <td>${row['% Ach LY']}</td>
+        </tr>
+    `).join('');
+}
 
-        // Fetch data when the page loads
-        fetchData();
-    </script>
-</body>
-</html>
