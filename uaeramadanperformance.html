@@ -1,47 +1,155 @@
-<!-- Same structure as rota.html with these changes -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAE RAMADAN PERFORMANCE</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+        }
+        body::before {
+            content: "";
+            background-image: url('Background.jpg');
+            opacity: 0.6;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        .input-group { margin-bottom: 15px; }
+        select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 12px 25px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            background-color: rgba(255,255,255,0.9); 
+        }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #4CAF50; color: white; } /* Changed to button color */
+        tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <h2 style="color: #2c3e50; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
+        UAE RAMADAN PERFORMANCE
+    </h2>
 
-<!-- Change title -->
-<title>UAE PERFORMANCE</title>
+    <div class="input-group">
+        <label for="area">Area:</label>
+        <select id="area" onchange="updateAreaStores()">
+            <option value="All">All Areas</option>
+        </select>
+    </div>
 
-<!-- Change table headers -->
-<table id="performanceTable">
-    <thead>
-        <tr>
-            <th>AREA</th>
-            <th>STORE CODE</th>
-            <th>STORE NAME</th>
-            <th>VALUE TY</th>
-            <th>TGT VALUE</th>
-            <th>% TGT ACH</th>
-            <th>VALUE LY</th>
-            <th>% ACH LY</th>
-        </tr>
-    </thead>
-    <tbody></tbody>
-</table>
+    <div class="input-group">
+        <label for="store">Store Name:</label>
+        <select id="store" onchange="updateTable()">
+            <option value="All">All Stores</option>
+        </select>
+    </div>
 
-<!-- Update updateTable function -->
-function updateTable() {
-    const area = document.getElementById('area').value;
-    const store = document.getElementById('store').value;
-    
-    const filteredData = allData.filter(row => {
-        return (area === 'All' || row.Area === area) && 
-               (store === 'All' || row.Store === store);
-    });
+    <table id="performanceTable">
+        <thead>
+            <tr>
+                <th>AREA</th>
+                <th>STORE CODE</th>
+                <th>STORE NAME</th>
+                <th>VALUE TY</th>
+                <th>TGT VALUE</th>
+                <th>% TGT ACH</th>
+                <th>VALUE LY</th>
+                <th>% ACH LY</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
-    const tbody = document.querySelector('#performanceTable tbody');
-    tbody.innerHTML = filteredData.map(row => `
-        <tr>
-            <td>${row.Area}</td>
-            <td>${row['Store Code']}</td>
-            <td>${row.Store}</td>
-            <td>${row.Value_TY}</td>
-            <td>${row.TGT_VALUE}</td>
-            <td>${row['% TGT Ach']}</td>
-            <td>${row.Value_LY}</td>
-            <td>${row['% Ach LY']}</td>
-        </tr>
-    `).join('');
-}
+    <script>
+        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
+        let allData = [];
+        let areaStoreMap = {};
 
+        async function loadData() {
+            try {
+                const response = await fetch(GOOGLE_SHEETS_URL);
+                const csvData = await response.text();
+                const workbook = XLSX.read(csvData, { type: 'string' });
+                const sheet = workbook.Sheets[workbook.SheetNames[1]]; // Use second sheet
+                allData = XLSX.utils.sheet_to_json(sheet);
+                processData();
+                initializeAreas();
+                updateTable();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function processData() {
+            areaStoreMap = {};
+            allData.forEach(row => {
+                const area = row.Area;
+                const store = row['Store Name'];
+                if (!areaStoreMap[area]) areaStoreMap[area] = new Set();
+                areaStoreMap[area].add(store);
+            });
+        }
+
+        function initializeAreas() {
+            const areaSelect = document.getElementById('area');
+            Object.keys(areaStoreMap).forEach(area => {
+                areaSelect.innerHTML += `<option value="${area}">${area}</option>`;
+            });
+        }
+
+        function updateAreaStores() {
+            const area = document.getElementById('area').value;
+            const storeSelect = document.getElementById('store');
+            storeSelect.innerHTML = '<option value="All">All Stores</option>';
+            
+            if (area !== 'All') {
+                Array.from(areaStoreMap[area]).forEach(store => {
+                    storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
+                });
+            }
+            updateTable();
+        }
+
+        function updateTable() {
+            const area = document.getElementById('area').value;
+            const store = document.getElementById('store').value;
+            
+            const filteredData = allData.filter(row => {
+                return (area === 'All' || row.Area === area) && 
+                       (store === 'All' || row['Store Name'] === store);
+            });
+
+            const tbody = document.querySelector('#performanceTable tbody');
+            tbody.innerHTML = filteredData.map(row => `
+                <tr>
+                    <td>${row.Area}</td>
+                    <td>${row['Store Code']}</td>
+                    <td>${row['Store Name']}</td>
+                    <td>${row.Value_TY}</td>
+                    <td>${row.TGT_VALUE}</td>
+                    <td>${row['% TGT Ach']}%</td>
+                    <td>${row.Value_LY}</td>
+                    <td>${row['% Ach LY']}%</td>
+                </tr>
+            `).join('');
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>
