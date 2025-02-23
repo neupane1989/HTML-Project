@@ -3,82 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Roster</title>
+    <title>ROTA</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
+        /* Same styles as index.html */
         body {
             font-family: Arial, sans-serif;
             max-width: 1000px;
             margin: 20px auto;
             padding: 20px;
-            background-color: #f9f9f9;
+            position: relative;
+            background-size: cover;
+            background-position: center;
         }
-        h1 {
-            color: #2c3e50;
-            border-bottom: 2px solid #4CAF50;
-            padding-bottom: 10px;
-        }
-        table {
+        body::before {
+            content: "";
+            background-image: url('Background.jpg');
+            opacity: 0.6;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            height: 100%;
+            z-index: -1;
         }
-        th, td {
-            padding: 12px;
-            border: 1px solid #ddd;
-            text-align: left;
+        .input-group { margin-bottom: 15px; }
+        select, input { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; }
+        button { padding: 12px 25px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 15px; 
+            background-color: rgba(255,255,255,0.9); 
         }
-        th {
-            background-color: #4CAF50;
-            color: white;
-        }
-        tr:nth-child(even) {
-            background-color: #f2f2f2;
-        }
-        tr:hover {
-            background-color: #e8f5e9;
-        }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #2c3e50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
     </style>
 </head>
 <body>
-    <h1>Roster</h1>
-    <div id="dataContainer"></div>
+    <h2 style="color: #2c3e50; border-bottom: 2px solid #4CAF50; padding-bottom: 10px;">
+        ROTA
+    </h2>
+
+    <div class="input-group">
+        <label for="area">Area:</label>
+        <select id="area" onchange="updateAreaStores()">
+            <option value="All">All Areas</option>
+        </select>
+    </div>
+
+    <div class="input-group">
+        <label for="store">Store Name:</label>
+        <select id="store" onchange="updateTable()">
+            <option value="All">All Stores</option>
+        </select>
+    </div>
+
+    <table id="rotaTable">
+        <thead>
+            <tr>
+                <th>STORE NAME</th>
+                <th>HRMS</th>
+                <th>DESIGNATION</th>
+                <th>STAFF NAME</th>
+                <th>Week No.</th>
+                <th>17-Feb-25</th>
+                <th>18-Feb-25</th>
+                <th>19-Feb-25</th>
+                <th>20-Feb-25</th>
+                <th>21-Feb-25</th>
+                <th>22-Feb-25</th>
+                <th>Remarks</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
 
     <script>
-        const SHEET_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/gviz/tq?tqx=out:csv&sheet=Sheet3";
+        const GOOGLE_SHEETS_URL = "https://docs.google.com/spreadsheets/d/1aV9fmN_xkzaKTn-tKCXLS9-Vss_9Os9zkEtrVmoWFvE/export?format=csv";
+        let allData = [];
+        let areaStoreMap = {};
 
-        async function fetchData() {
+        async function loadData() {
             try {
-                const response = await fetch(SHEET_URL);
-                if (!response.ok) throw new Error('Failed to fetch data');
+                const response = await fetch(GOOGLE_SHEETS_URL);
                 const csvData = await response.text();
-
-                // Convert CSV to table
-                const table = document.createElement('table');
-                const rows = csvData.split('\n');
-                rows.forEach((row, rowIndex) => {
-                    const tr = document.createElement('tr');
-                    row.split(',').forEach((cell, cellIndex) => {
-                        const td = document.createElement(rowIndex === 0 ? 'th' : 'td');
-                        td.textContent = cell.trim();
-                        tr.appendChild(td);
-                    });
-                    table.appendChild(tr);
-                });
-
-                // Clear previous table (if any)
-                const dataContainer = document.getElementById('dataContainer');
-                dataContainer.innerHTML = '';
-                dataContainer.appendChild(table);
+                const workbook = XLSX.read(csvData, { type: 'string' });
+                const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                allData = XLSX.utils.sheet_to_json(sheet);
+                processData();
+                initializeAreas();
+                updateTable();
             } catch (error) {
-                console.error('Error fetching data:', error);
-                alert('Failed to fetch data. Please check the sheet URL or try again later.');
+                console.error('Error loading data:', error);
             }
         }
 
-        // Fetch data when the page loads
-        fetchData();
+        function processData() {
+            areaStoreMap = {};
+            allData.forEach(row => {
+                const area = row.Area;
+                const store = row.Store;
+                if (!areaStoreMap[area]) areaStoreMap[area] = new Set();
+                areaStoreMap[area].add(store);
+            });
+        }
+
+        function initializeAreas() {
+            const areaSelect = document.getElementById('area');
+            Object.keys(areaStoreMap).forEach(area => {
+                areaSelect.innerHTML += `<option value="${area}">${area}</option>`;
+            });
+        }
+
+        function updateAreaStores() {
+            const area = document.getElementById('area').value;
+            const storeSelect = document.getElementById('store');
+            storeSelect.innerHTML = '<option value="All">All Stores</option>';
+            
+            if (area !== 'All') {
+                Array.from(areaStoreMap[area]).forEach(store => {
+                    storeSelect.innerHTML += `<option value="${store}">${store}</option>`;
+                });
+            }
+            updateTable();
+        }
+
+        function updateTable() {
+            const area = document.getElementById('area').value;
+            const store = document.getElementById('store').value;
+            
+            const filteredData = allData.filter(row => {
+                return (area === 'All' || row.Area === area) && 
+                       (store === 'All' || row.Store === store);
+            });
+
+            const tbody = document.querySelector('#rotaTable tbody');
+            tbody.innerHTML = filteredData.map(row => `
+                <tr>
+                    <td>${row.Store}</td>
+                    <td>${row['HRMS ID']}</td>
+                    <td>${row.Designation}</td>
+                    <td>${row['Employee Name']}</td>
+                    <td>${row['Week No.']}</td>
+                    <td>${row['17-Feb-25']}</td>
+                    <td>${row['18-Feb-25']}</td>
+                    <td>${row['19-Feb-25']}</td>
+                    <td>${row['20-Feb-25']}</td>
+                    <td>${row['21-Feb-25']}</td>
+                    <td>${row['22-Feb-25']}</td>
+                    <td>${row.Remarks}</td>
+                </tr>
+            `).join('');
+        }
+
+        window.onload = loadData;
     </script>
 </body>
 </html>
+
