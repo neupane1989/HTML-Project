@@ -477,15 +477,19 @@
 
 
         
-        function getLastUpdatedDate() {
-            let now = new Date();
-            now.setMinutes(now.getMinutes() - 30);
-            let options = { day: '2-digit', month: 'short', year: 'numeric' };
-            let formattedDate = now.toLocaleDateString('en-GB', options).replace(',', '');
-            document.getElementById("lastUpdated").textContent = formattedDate;
-        }
-        getLastUpdatedDate();
+        
+function getLastUpdatedDate() {
+    let now = new Date();
+    now.setDate(now.getDate() - 1); // Subtract 1 day to get yesterday's date
+    let options = { day: '2-digit', month: 'short', year: 'numeric' };
+    let formattedDate = now.toLocaleDateString('en-GB', options).replace(',', '');
+    document.getElementById("lastUpdated").textContent = formattedDate;
+}
+getLastUpdatedDate();
     </script>
 </body>
 </html>
+
+
+
 
