@@ -38,7 +38,6 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             animation: fadeIn 1.5s ease-in-out;
-            overflow: hidden;
         }
 
         @keyframes fadeIn {
@@ -58,6 +57,13 @@
         }
 
         /* Scrolling Text Effect */
+        .scrolling-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
+        }
+
         .scrolling-text {
             display: inline-block;
             font-size: 22px;
@@ -67,28 +73,20 @@
             color: #fff;
         }
 
-        .scrolling-container {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
-        }
-
         @keyframes scrollText {
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
 
-        /* Typewriter Effect */
+        /* Typewriter Effect (Fully Fixed) */
         .typewriter {
-            font-size: 16px;
-            margin: 10px auto;
+            font-size: 18px;
+            display: inline-block;
             white-space: nowrap;
             overflow: hidden;
             border-right: 2px solid white;
-            width: fit-content;
+            animation: typewrite 5s steps(40, end) forwards, blink 0.7s infinite;
             max-width: 100%;
-            animation: typewrite 3s steps(40, end) forwards, blink 0.7s infinite;
         }
 
         @keyframes typewrite {
@@ -125,7 +123,8 @@
             <div class="scrolling-text">🚧 We're Building Something Amazing! 🚧</div>
         </div>
 
-        <p class="typewriter">This page is under construction, but great things are coming soon.</p>
+        <!-- Typewriter Effect (Fixed) -->
+        <p class="typewriter">Great things are coming soon...</p>
     </div>
 
     <div class="ramadan">🌙 Ramadan Kareem 🌙</div>
