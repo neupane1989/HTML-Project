@@ -9,27 +9,17 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "Poppins", sans-serif;
+            font-family: Arial, sans-serif;
         }
 
-        /* Background Animation */
         body {
             background: linear-gradient(135deg, #f8b500, #ff6f00);
-            background-size: 400% 400%;
-            animation: gradientBG 8s infinite ease-in-out;
             color: white;
             text-align: center;
             padding: 20px;
             overflow: hidden;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        /* Container */
         .container {
             max-width: 600px;
             margin: 100px auto;
@@ -37,56 +27,42 @@
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            animation: fadeIn 1.5s ease-in-out;
+            animation: fadeInScale 1.5s ease-in-out;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        /* Floating Worker Image */
+        /* Worker Image Animation */
         .worker {
             width: 150px;
-            animation: floatUpDown 3s infinite ease-in-out;
+            animation: bounce 1.5s infinite;
         }
 
-        @keyframes floatUpDown {
+        @keyframes bounce {
             0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+            50% { transform: translateY(-10px); }
         }
 
-        /* Scrolling Text Effect */
-        .scrolling-container {
-            width: 100%;
-            overflow: hidden;
-            white-space: nowrap;
-            position: relative;
+        /* Text Fade-In & Scale Animation */
+        h1 {
+            margin-top: 10px;
+            font-size: 24px;
+            animation: fadeInScale 2s ease-in-out;
         }
 
-        .scrolling-text {
-            display: inline-block;
-            font-size: 22px;
-            font-weight: bold;
-            white-space: nowrap;
-            animation: scrollText 10s linear infinite;
-            color: #fff;
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
-        @keyframes scrollText {
-            0% { transform: translateX(100%); }
-            100% { transform: translateX(-100%); }
-        }
-
-        /* Typewriter Effect (Fully Fixed) */
+        /* Typewriter Effect (Fixed) */
         .typewriter {
-            font-size: 18px;
-            display: inline-block;
+            font-size: 16px;
+            margin: 10px auto;
             white-space: nowrap;
             overflow: hidden;
             border-right: 2px solid white;
-            animation: typewrite 5s steps(40, end) forwards, blink 0.7s infinite;
+            width: fit-content;
             max-width: 100%;
+            animation: typewrite 3s steps(40, end) forwards, blink 0.7s infinite;
         }
 
         @keyframes typewrite {
@@ -98,17 +74,17 @@
             50% { border-color: transparent; }
         }
 
-        /* Ramadan Kareem Neon Glow Effect */
+        /* Ramadan Kareem Glowing Animation */
         .ramadan {
             font-size: 32px;
             font-weight: bold;
             margin-top: 50px;
             color: #fff;
             text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.8);
-            animation: neonGlow 2s infinite alternate;
+            animation: glow 2s infinite alternate;
         }
 
-        @keyframes neonGlow {
+        @keyframes glow {
             0% { text-shadow: 0px 0px 5px rgba(255, 255, 255, 0.6); }
             100% { text-shadow: 0px 0px 15px rgba(255, 255, 255, 1); }
         }
@@ -117,14 +93,8 @@
 <body>
     <div class="container">
         <img src="construction.png" alt="Under Construction" class="worker">
-        
-        <!-- Scrolling Text -->
-        <div class="scrolling-container">
-            <div class="scrolling-text">🚧 We're Building Something Amazing! 🚧</div>
-        </div>
-
-        <!-- Typewriter Effect (Fixed) -->
-        <p class="typewriter">Great things are coming soon...</p>
+        <h1>🚧 We're Building Something Amazing! 🚧</h1>
+        <p class="typewriter">This page is under construction, but great things are coming soon.</p>
     </div>
 
     <div class="ramadan">🌙 Ramadan Kareem 🌙</div>
