@@ -47,31 +47,6 @@
             font-size: 16px;
             margin: 10px 0;
         }
-
-        .countdown h2 {
-            margin-top: 20px;
-            font-size: 20px;
-        }
-
-        #timer {
-            font-size: 18px;
-            margin-top: 10px;
-        }
-
-        button {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            border: none;
-            background: white;
-            color: #ff6f00;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        button:hover {
-            background: #ffcc80;
-        }
     </style>
 </head>
 <body>
@@ -79,48 +54,6 @@
         <img src="construction.png" alt="Under Construction" class="worker">
         <h1>🚧 We're Building Something Amazing! 🚧</h1>
         <p>This page is under construction, but great things are coming soon.</p>
-        
-        <div class="countdown">
-            <h2>Launching In:</h2>
-            <div id="timer">
-                <span id="days">00</span> Days 
-                <span id="hours">00</span> Hours 
-                <span id="minutes">00</span> Minutes 
-                <span id="seconds">00</span> Seconds
-            </div>
-        </div>
-
-        <button onclick="window.location.href='mailto:support@example.com';">Contact Us</button>
     </div>
-
-    <script>
-        function startCountdown() {
-            const launchDate = new Date("March 30, 2025 00:00:00").getTime(); // Change date if needed
-
-            const interval = setInterval(() => {
-                const now = new Date().getTime();
-                const timeLeft = launchDate - now;
-
-                if (timeLeft <= 0) {
-                    clearInterval(interval);
-                    document.getElementById("timer").innerHTML = "We are live!";
-                    return;
-                }
-
-                const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-                const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-                document.getElementById("days").textContent = days;
-                document.getElementById("hours").textContent = hours;
-                document.getElementById("minutes").textContent = minutes;
-                document.getElementById("seconds").textContent = seconds;
-            }, 1000);
-        }
-
-        startCountdown();
-    </script>
 </body>
 </html>
-
