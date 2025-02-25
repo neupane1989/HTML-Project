@@ -12,7 +12,7 @@
             font-family: "Poppins", sans-serif;
         }
 
-        /* Background Gradient Animation */
+        /* Background Animation */
         body {
             background: linear-gradient(135deg, #f8b500, #ff6f00);
             background-size: 400% 400%;
@@ -38,6 +38,7 @@
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
             animation: fadeIn 1.5s ease-in-out;
+            overflow: hidden;
         }
 
         @keyframes fadeIn {
@@ -57,16 +58,25 @@
         }
 
         /* Scrolling Text Effect */
-        h1 {
-            font-size: 24px;
-            white-space: nowrap;
+        .scrolling-text {
             display: inline-block;
-            animation: scrollText 8s linear infinite;
+            font-size: 22px;
+            font-weight: bold;
+            white-space: nowrap;
+            animation: scrollText 10s linear infinite;
+            color: #fff;
+        }
+
+        .scrolling-container {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            position: relative;
         }
 
         @keyframes scrollText {
-            from { transform: translateX(100%); }
-            to { transform: translateX(-100%); }
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
         }
 
         /* Typewriter Effect */
@@ -109,7 +119,12 @@
 <body>
     <div class="container">
         <img src="construction.png" alt="Under Construction" class="worker">
-        <h1>🚧 We're Building Something Amazing! 🚧</h1>
+        
+        <!-- Scrolling Text -->
+        <div class="scrolling-container">
+            <div class="scrolling-text">🚧 We're Building Something Amazing! 🚧</div>
+        </div>
+
         <p class="typewriter">This page is under construction, but great things are coming soon.</p>
     </div>
 
