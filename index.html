@@ -63,6 +63,14 @@
             font-size: 2em;
             cursor: pointer;
         }
+        .scanner-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
 
         /* Shift Color Coding */
         .shift-AM { background: rgba(0, 123, 255, 0.3); }
@@ -255,7 +263,6 @@
     <!-- Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.19.1"></script>
 </head>
 <body>
     <!-- Dynamic Banner -->
@@ -268,6 +275,7 @@
     <div class="scanner-modal" id="scannerModal">
         <div class="scanner-close" onclick="stopScanner()">×</div>
         <video class="scanner-video" id="scannerVideo"></video>
+        <canvas class="scanner-canvas" id="scannerCanvas"></canvas>
     </div>
 
     <div class="container" id="main-container">
@@ -449,18 +457,28 @@
                 storageBucket: "breakwatertimemgt.appspot.com",
                 messagingSenderId: "806149652458",
                 appId: "1:806149652458:web:d97884f60d2ff4644b7c93"
+            },
+            WALKIE_TALKIE_FIREBASE: {
+                apiKey: "AIzaSyCBKQmhnE3E3TmF7UcyuM7NwQyM0FYzL-A",
+                authDomain: "breakwatertimemgt.firebaseapp.com",
+                databaseURL: "https://breakwatertimemgt-default-rtdb.firebaseio.com/",
+                projectId: "breakwatertimemgt",
+                storageBucket: "breakwatertimemgt.appspot.com",
+                messagingSenderId: "806149652458",
+                appId: "1:806149652458:web:d97884f60d2ff4644b7c93"
             }
         };
 
         // Initialize Firebase
-        firebase.initializeApp(CONFIG.FIREBASE);
+        const firebaseApp = firebase.initializeApp(CONFIG.FIREBASE);
+        const walkieTalkieFirebaseApp = firebase.initializeApp(CONFIG.WALKIE_TALKIE_FIREBASE, "walkieTalkie");
 
         // Global Variables
         let selectedStaff = null, currentData = {}, activeBreaks = {}, selectedArea = 'Area 2',
-            selectedStore = null, staffList = [], unlockedAreas = ['Area 2'], codeReader = null,
+            selectedStore = null, staffList = [], unlockedAreas = ['Area 2'], 
             loggedInUser = 'user_' + Math.random().toString(36).substr(2, 9), activeDropdown = null,
             mediaRecorder = null, audioChunks = [], audioStream = null, audioContext = null,
-            activeListeners = 0, activeTransmission = null;
+            activeListeners = 0, activeTransmission = null, scannerInterval = null;
 
         // Area and Staff Data
         const areas = {
@@ -942,6 +960,9 @@
             
             const modal = document.getElementById('scannerModal');
             const video = document.getElementById('scannerVideo');
+            const canvas = document.getElementById('scannerCanvas');
+            const ctx = canvas.getContext('2d');
+            
             modal.style.display = 'block';
             
             try {
@@ -951,21 +972,23 @@
                 video.srcObject = stream;
                 await video.play();
                 
-                if (!codeReader) {
-                    codeReader = new ZXing.BrowserMultiFormatReader();
-                }
+                // Set canvas dimensions to match video
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
                 
-                codeReader.decodeFromVideoElement(video).then(result => {
-                    if (result) {
-                        document.getElementById(targetField).value = result.text;
+                // Start scanning for barcodes
+                scannerInterval = setInterval(() => {
+                    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const code = scanForBarcode(imageData);
+                    
+                    if (code) {
+                        document.getElementById(targetField).value = code;
                         if (targetField === 'bin-search') searchBinHash();
                         if (targetField === 'odd-search') searchOddPair();
                         stopScanner();
                     }
-                }).catch(err => {
-                    console.error('Decoding error:', err);
-                    showMessage('Scanning failed. Try again.', 'error');
-                });
+                }, 500);
                 
             } catch (err) {
                 console.error('Camera error:', err);
@@ -974,9 +997,67 @@
             }
         }
 
+        function scanForBarcode(imageData) {
+            // This is a very simple barcode scanner that looks for a pattern of black and white bars
+            // For production, you should use a proper barcode scanning library
+            const data = imageData.data;
+            const width = imageData.width;
+            const height = imageData.height;
+            
+            // Scan the middle row of the image
+            const middleRow = Math.floor(height / 2);
+            let pixels = [];
+            
+            // Convert to grayscale and threshold
+            for (let x = 0; x < width; x++) {
+                const i = (middleRow * width + x) * 4;
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                const gray = (r + g + b) / 3;
+                pixels.push(gray < 128 ? 1 : 0); // 1 for black, 0 for white
+            }
+            
+            // Look for patterns that might be a barcode
+            let currentVal = pixels[0];
+            let count = 1;
+            let bars = [];
+            
+            for (let i = 1; i < pixels.length; i++) {
+                if (pixels[i] === currentVal) {
+                    count++;
+                } else {
+                    bars.push({ val: currentVal, count });
+                    currentVal = pixels[i];
+                    count = 1;
+                }
+            }
+            bars.push({ val: currentVal, count });
+            
+            // Simple check for barcode pattern (alternating black and white bars)
+            if (bars.length > 10) {
+                // Try to decode as a simple numeric barcode
+                let code = '';
+                for (let i = 0; i < bars.length; i += 2) {
+                    if (bars[i].val === 1 && bars[i].count > 5) {
+                        code += '1';
+                    } else if (bars[i].val === 0 && bars[i].count > 5) {
+                        code += '0';
+                    }
+                }
+                
+                if (code.length > 5) {
+                    return code;
+                }
+            }
+            
+            return null;
+        }
+
         function stopScanner() {
-            if (codeReader) {
-                codeReader.reset();
+            if (scannerInterval) {
+                clearInterval(scannerInterval);
+                scannerInterval = null;
             }
             const modal = document.getElementById('scannerModal');
             const video = document.getElementById('scannerVideo');
@@ -1016,14 +1097,14 @@
             if (!selectedStore) return;
             
             // Count active listeners
-            firebase.database().ref(`stores/${selectedArea}/${selectedStore}/audio/listeners`)
+            walkieTalkieFirebaseApp.database().ref(`stores/${selectedArea}/${selectedStore}/audio/listeners`)
                 .on('value', snapshot => {
                     const count = snapshot.numChildren();
                     document.getElementById('active-count').textContent = count;
                 });
             
             // Listen for new audio messages
-            firebase.database().ref(`stores/${selectedArea}/${selectedStore}/audio/messages`)
+            walkieTalkieFirebaseApp.database().ref(`stores/${selectedArea}/${selectedStore}/audio/messages`)
                 .orderByChild('timestamp')
                 .limitToLast(1)
                 .on('child_added', snapshot => {
@@ -1039,7 +1120,7 @@
             
             try {
                 // Register as active listener
-                const listenerRef = firebase.database()
+                const listenerRef = walkieTalkieFirebaseApp.database()
                     .ref(`stores/${selectedArea}/${selectedStore}/audio/listeners`)
                     .child(loggedInUser);
                 
@@ -1065,7 +1146,7 @@
                     const arrayBuffer = await audioBlob.arrayBuffer();
                     const base64String = arrayBufferToBase64(arrayBuffer);
                     
-                    await firebase.database()
+                    await walkieTalkieFirebaseApp.database()
                         .ref(`stores/${selectedArea}/${selectedStore}/audio/messages`)
                         .push({
                             data: base64String,
@@ -1095,7 +1176,7 @@
             }
             
             // Remove listener registration
-            firebase.database()
+            walkieTalkieFirebaseApp.database()
                 .ref(`stores/${selectedArea}/${selectedStore}/audio/listeners`)
                 .child(loggedInUser)
                 .remove();
@@ -1194,7 +1275,7 @@
 
         async function playRecentBroadcast() {
             try {
-                const snapshot = await firebase.database()
+                const snapshot = await walkieTalkieFirebaseApp.database()
                     .ref(`stores/${selectedArea}/${selectedStore}/audio/messages`)
                     .orderByChild('timestamp')
                     .limitToLast(1)
