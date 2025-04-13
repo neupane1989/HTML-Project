@@ -27,12 +27,14 @@
   <br>
   <button id="pushToTalkBtn" disabled>Hold to Talk</button>  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>  <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyDxEvM3IUpl6xzG4Y1om80Cwomo4xnbFQo",
-      authDomain: "abc-trial-73e0a.firebaseapp.com",
-      projectId: "abc-trial-73e0a",
-      storageBucket: "abc-trial-73e0a.firebasestorage.app",
-      messagingSenderId: "813805020246",
-      appId: "1:813805020246:web:8c26aa4c5ea4b57fd847f7"
+      apiKey: "AIzaSyAJQu2PRjPTBGE8-S39oul5HHAgWhUNhxM",
+      authDomain: "trial-walkie-talkie.firebaseapp.com",
+      databaseURL: "https://trial-walkie-talkie-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "trial-walkie-talkie",
+      storageBucket: "trial-walkie-talkie.firebasestorage.app",
+      messagingSenderId: "95655331213",
+      appId: "1:95655331213:web:36b14ce3285ddeec7c69c4",
+      measurementId: "G-YN1F55TJVN"
     };
 
     firebase.initializeApp(firebaseConfig);
@@ -50,7 +52,9 @@
 
     let localStream;
     let peers = {};
+    let connections = {};
     let currentStore = null;
+    const userId = Math.random().toString(36).substring(2);
 
     for (let store in stores) {
       let option = document.createElement("option");
@@ -63,16 +67,73 @@
       currentStore = storeSelect.value;
       employeeList.innerHTML = `<strong>Employees:</strong> ${stores[currentStore].join(", ")}`;
       talkButton.disabled = false;
-
-      // Join room and listen
-      await setupConnection(currentStore);
+      joinRoom(currentStore);
     });
+
+    async function joinRoom(room) {
+      const roomRef = db.ref(`rooms/${room}`);
+      const userRef = roomRef.child(userId);
+
+      // Send offer to new users
+      roomRef.on("child_added", async (snapshot) => {
+        const remoteId = snapshot.key;
+        if (remoteId === userId || connections[remoteId]) return;
+
+        const pc = createPeerConnection(remoteId);
+        connections[remoteId] = pc;
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        db.ref(`rooms/${room}/${userId}/offers/${remoteId}`).set(pc.localDescription.toJSON());
+      });
+
+      // Handle offer from another user
+      userRef.child("offers").on("child_added", async (snapshot) => {
+        const remoteId = snapshot.key;
+        if (connections[remoteId]) return;
+
+        const pc = createPeerConnection(remoteId);
+        connections[remoteId] = pc;
+
+        const offer = snapshot.val();
+        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+
+        db.ref(`rooms/${room}/${remoteId}/answers/${userId}`).set(pc.localDescription.toJSON());
+      });
+
+      // Handle answer
+      userRef.child("answers").on("child_added", async (snapshot) => {
+        const remoteId = snapshot.key;
+        const answer = snapshot.val();
+        const pc = connections[remoteId];
+        if (pc && answer) {
+          await pc.setRemoteDescription(new RTCSessionDescription(answer));
+        }
+      });
+    }
+
+    function createPeerConnection(remoteId) {
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+
+      pc.ontrack = (event) => {
+        const audio = document.createElement("audio");
+        audio.srcObject = event.streams[0];
+        audio.autoplay = true;
+        document.body.appendChild(audio);
+      };
+
+      return pc;
+    }
 
     talkButton.addEventListener("mousedown", async () => {
       localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      for (let peerId in peers) {
-        localStream.getTracks().forEach(track => peers[peerId].addTrack(track, localStream));
-      }
+      Object.values(connections).forEach(pc => {
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      });
     });
 
     talkButton.addEventListener("mouseup", () => {
@@ -81,45 +142,5 @@
         localStream = null;
       }
     });
-
-    async function setupConnection(roomName) {
-      const userId = Math.random().toString(36).substring(2);
-      const roomRef = db.ref("rooms/" + roomName);
-
-      // Listen for others
-      roomRef.on("child_added", async (snap) => {
-        const remoteId = snap.key;
-        if (remoteId === userId || peers[remoteId]) return;
-
-        const peerConnection = new RTCPeerConnection();
-        peers[remoteId] = peerConnection;
-
-        peerConnection.ontrack = (event) => {
-          const audio = document.createElement("audio");
-          audio.srcObject = event.streams[0];
-          audio.autoplay = true;
-          document.body.appendChild(audio);
-        };
-
-        const offer = snap.val();
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-
-        db.ref(`rooms/${roomName}/${userId}`).set(peerConnection.localDescription.toJSON());
-      });
-
-      // Send offer
-      const pc = new RTCPeerConnection();
-      peers[userId] = pc;
-
-      pc.onicecandidate = (event) => {
-        if (event.candidate) return;
-        db.ref("rooms/" + roomName + "/" + userId).set(pc.localDescription.toJSON());
-      };
-
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-    }
   </script></body>
 </html>
