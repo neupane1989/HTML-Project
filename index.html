@@ -3,7 +3,7 @@
   <title>Push-to-Talk Voice Chat</title>
   <style>
     body { font-family: Arial; text-align: center; background: #f0f2f5; }
-    #storeSelect, #employeeList { margin: 10px; padding: 10px; font-size: 16px; }
+    select, button { margin: 10px; padding: 10px; font-size: 16px; }
     #pushToTalkBtn {
       background-color: #007bff;
       color: white;
@@ -24,6 +24,8 @@
     <option disabled selected>Select Store</option>
   </select>
   <div id="employeeList"></div>
+  <br>
+  <button id="joinStoreBtn">Join Store</button>
   <br>
   <button id="pushToTalkBtn" disabled>Hold to Talk</button>  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>  <script>
     const firebaseConfig = {
@@ -49,6 +51,7 @@
     const storeSelect = document.getElementById("storeSelect");
     const employeeList = document.getElementById("employeeList");
     const talkButton = document.getElementById("pushToTalkBtn");
+    const joinStoreBtn = document.getElementById("joinStoreBtn");
 
     let localStream;
     let peers = {};
@@ -63,7 +66,8 @@
       storeSelect.appendChild(option);
     }
 
-    storeSelect.addEventListener("change", async () => {
+    joinStoreBtn.addEventListener("click", async () => {
+      if (!storeSelect.value) return alert("Please select a store first");
       currentStore = storeSelect.value;
       employeeList.innerHTML = `<strong>Employees:</strong> ${stores[currentStore].join(", ")}`;
       talkButton.disabled = false;
@@ -123,24 +127,38 @@
         const audio = document.createElement("audio");
         audio.srcObject = event.streams[0];
         audio.autoplay = true;
+        audio.playsInline = true;
+        audio.setAttribute("autoplay", true);
+        audio.setAttribute("playsinline", true);
         document.body.appendChild(audio);
+        audio.play().catch(e => console.log("Autoplay error:", e));
       };
 
       return pc;
     }
 
-    talkButton.addEventListener("mousedown", async () => {
-      localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      Object.values(connections).forEach(pc => {
-        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-      });
-    });
+    talkButton.addEventListener("touchstart", startTalking);
+    talkButton.addEventListener("mousedown", startTalking);
+    talkButton.addEventListener("touchend", stopTalking);
+    talkButton.addEventListener("mouseup", stopTalking);
 
-    talkButton.addEventListener("mouseup", () => {
+    async function startTalking() {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        Object.values(connections).forEach(pc => {
+          localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+        });
+      } catch (err) {
+        alert("Microphone access denied or not available.");
+      }
+    }
+
+    function stopTalking() {
       if (localStream) {
         localStream.getTracks().forEach(track => track.stop());
         localStream = null;
       }
-    });
+    }
   </script></body>
 </html>
+
